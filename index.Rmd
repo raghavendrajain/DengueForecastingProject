@@ -17,6 +17,7 @@ When you click the **Knit** button a document will be generated that includes bo
 This is an edit once more. 
 
 ```{r, echo=TRUE, message=FALSE}
+
 require(ggplot2)
 require(reshape)
 require(plotly)
@@ -133,16 +134,27 @@ head(DHF_total_2008.2015)
 
 
 ## Aggregating the data on DHF, according to the year. 
-totalDHF <- aggregate(count~ date_sick_year ,DHF_total_2008.2015,sum)
+totalDHF <- aggregate(count ~ date_sick_year, DHF_total_2008.2015,sum)
 
 totalDHF
 
 
-ggplot(totalDHF, aes(x = date_sick_year, y = count )) + geom_bar(stat = "identity")  + ggtitle(" Reported DHF incidents in Bangkok (2008-2015)") + labs(x="Year",y="Yearly Count Data")
+ggplot(totalDHF, aes(x = date_sick_year, y = count )) + geom_bar(stat = "identity")  + ggtitle("Reported annual DHF incidents in Bangkok (2008-2015)") + labs(x="Year",y="Yearly Count Data")
 
 ```
 
 The plot shows the Dengue hemorrhagic fever(DHF) incidence peaked in 2013 and 2015. 
 
 
+
+```{r DegueSurveillaneData_Monthly, echo=FALSE, message=FALSE , results= "hide"}
+
+totalDHF_month <- aggregate(count ~ date_sick_month, DHF_total_2008.2015, sum)
+totalDHF_month$date_sick_month <- month.abb
+totalDHF_month$date_sick_month  <- factor(totalDHF_month$date_sick_month, levels = month.abb)
+ggplot(totalDHF_month, aes(x = date_sick_month, y = count )) + geom_bar(stat = "identity")  + ggtitle(" Reported Monthly DHF incidents in Bangkok (2008-2015)") + labs(x="Months",y="Aggregated Monthly Count Data")
+
+```
+
+The above plot shows that most of the DHF incidents were reported in the month of October and November.
 
