@@ -51,10 +51,10 @@ The diurnal temperature range (DTR) is the difference between the daily maximum 
 
 ```{r DTR, echo=FALSE}
 
-AverageDTRInBangkok_2008.2015 <- read.csv("E:/Dengue Forecasting Project/DataAndCode/Datasets/prepare_data/AverageDTRInBangkok_2008-2015.csv")
+AverageDTRInBangkok_2008.2015 <- read.csv("E:/Dengue Forecasting Project/DataAndCode/Datasets/prepare_data/AverageDTRInBangkok_2008-2015.csv",check.names = FALSE)
 
 # AverageDTRInBangkok_2008.2015 <- subset(AverageDTRInBangkok_2008.2015, select = -c(Month, X2016))
-AverageDTRInBangkok_2008.2015 <- subset(AverageDTRInBangkok_2008.2015, select = -c(X2016))
+AverageDTRInBangkok_2008.2015 <- subset(AverageDTRInBangkok_2008.2015, select = -2)
 
 AverageDTRInBangkok_2008.2015[,"Month"] <- month.abb
 
