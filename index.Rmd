@@ -32,7 +32,7 @@ connected_district <- read.csv("E:/Dengue Forecasting Project/DataAndCode/Datase
 
 connected_district_code <- read.csv("E:/Dengue Forecasting Project/DataAndCode/Datasets/prepare_data/connected_district_code.csv", header = FALSE)
 
-dengue_bangkok_district_level_2008.2015 <- read.csv("E:/Dengue Forecasting Project/DataAndCode/Datasets/prepare_data/dengue_bangkok_district_level_2008-2015.csv")
+
 
 district_code <- read.csv("E:/Dengue Forecasting Project/DataAndCode/Datasets/prepare_data/district_code.csv")
 
@@ -74,7 +74,7 @@ meltdf <- melt(AverageDTRInBangkok_2008.2015, id.vars = "Month")
 # Everything on the same plot
 
 meltdf$Month <- factor(meltdf$Month, levels = AverageDTRInBangkok_2008.2015$Month)
-ggplot(meltdf,aes(x=Month,y=value,colour=variable,group=variable)) + geom_line(size=1.5)
+ggplot(meltdf,aes(x=Month,y=value,colour=variable,group=variable)) + geom_line(size=1.5) + ggtitle("The diurnal temperature range (DTR) in Bangkok (2008-2015)") + labs(x="Months",y="DTR") 
 
 ```
 
@@ -104,8 +104,30 @@ meltdf <- melt(AverageRainInBangkok_2008.2015, id.vars = "Month")
 
 # Everything on the same plot
 meltdf$Month <- factor(meltdf$Month, levels = AverageRainInBangkok_2008.2015$Month)
-ggplot(meltdf,aes(x=Month,y=value,colour=variable,group=variable)) + geom_line(size=1.5)
+ggplot(meltdf,aes(x=Month,y=value,colour=variable,group=variable)) + geom_line(size=1.5) + ggtitle("Average Monthly Rainfall in Bangkok (2008-2015)") + labs(x="Months",y="Average Monthly Rainfall(mm)") 
 
 ```
+
+##The dengue incidences in Bangkok Districts 
+
+```{r}
+
+dengue_bangkok_district_level_2008.2015 <- read.csv("E:/Dengue Forecasting Project/DataAndCode/Datasets/prepare_data/dengue_bangkok_district_level_2008-2015.csv", header = TRUE)
+
+head(dengue_bangkok_district_level_2008.2015)
+
+DHF_bangkok_district_level_2008.2015 <- subset(dengue_bangkok_district_level_2008.2015, disease_code == 26 )
+DHF_yearly_2008.2015 <- subset(DHF_bangkok_district_level_2008.2015, select = - c(geocode_district, disease_code ))
+
+head(DHF_yearly_2008.2015)
+
+a<-tapply(DHF_yearly_2008.2015$count, DHF_yearly_2008.2015$date_sick_year, FUN=sum)
+
+
+
+```
+
+
+
 
 
