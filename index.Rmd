@@ -152,7 +152,7 @@ The plot shows the Dengue hemorrhagic fever(DHF) incidence peaked in 2013 and 20
 totalDHF_month <- aggregate(count ~ date_sick_month, DHF_total_2008.2015, sum)
 totalDHF_month$date_sick_month <- month.abb
 totalDHF_month$date_sick_month  <- factor(totalDHF_month$date_sick_month, levels = month.abb)
-ggplot(totalDHF_month, aes(x = date_sick_month, y = count )) + geom_bar(stat = "identity")  + ggtitle(" Reported Monthly DHF incidents in Bangkok (2008-2015)") + labs(x="Months",y="Aggregated Monthly Count Data")
+ggplot(totalDHF_month, aes(x = date_sick_month, y = count )) + geom_bar(stat = "identity")  + ggtitle("Reported Monthly DHF incidents in Bangkok (2008-2015)") + labs(x="Months",y="Aggregated Monthly Count Data")
 
 ```
 
