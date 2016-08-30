@@ -110,7 +110,7 @@ ggplot(meltdf,aes(x=Month,y=value,colour=variable,group=variable)) + geom_line(s
 
 ##The dengue incidences in Bangkok Districts 
 
-```{r DegueSurveillaneData, echo=FALSE, message=FALSE , results= "hide", }
+```{r DegueSurveillaneData, echo=FALSE, message=FALSE , results= "hide"}
 
 ## Importing the data for dengue incidences
 dengue_bangkok_district_level_2008.2015 <- read.csv("E:/Dengue Forecasting Project/DataAndCode/Datasets/prepare_data/dengue_bangkok_district_level_2008-2015.csv", header = TRUE)
@@ -137,11 +137,12 @@ totalDHF <- aggregate(count~ date_sick_year ,DHF_total_2008.2015,sum)
 
 totalDHF
 
-ggplot(totalDHF, aes(x = date_sick_year, y = count )) + geom_bar(stat = "identity")  + ggtitle(" Reported DHF incidents in Bangkok (2008-2015)") + labs(x="Year",y="Yearly Count Data") 
+
+ggplot(totalDHF, aes(x = date_sick_year, y = count )) + geom_bar(stat = "identity")  + ggtitle(" Reported DHF incidents in Bangkok (2008-2015)") + labs(x="Year",y="Yearly Count Data")
 
 ```
 
-
+The plot shows the Dengue hemorrhagic fever(DHF) incidence peaked in 2013 and 2015. 
 
 
 
