@@ -26,7 +26,7 @@ require(bnlearn)
 
 
 ```{r EntireData, echo=FALSE}
-AverageRainInBangkok_2008.2015 <- read.csv("E:/Dengue Forecasting Project/DataAndCode/Datasets/prepare_data/AverageRainInBangkok_2008-2015.csv")
+
 
 connected_district <- read.csv("E:/Dengue Forecasting Project/DataAndCode/Datasets/prepare_data/connected_district.csv")
 
@@ -47,37 +47,30 @@ match_district_code_table <- read.csv("E:/Dengue Forecasting Project/DataAndCode
 ```
 
 
-The diurnal temperature range (DTR) is the difference between the daily maximum and minimum temperature. 
+##The diurnal temperature range (DTR) is the difference between the daily maximum and minimum temperature. 
 
 ```{r DTR, echo=FALSE}
 
 AverageDTRInBangkok_2008.2015 <- read.csv("E:/Dengue Forecasting Project/DataAndCode/Datasets/prepare_data/AverageDTRInBangkok_2008-2015.csv",check.names = FALSE)
 
-# AverageDTRInBangkok_2008.2015 <- subset(AverageDTRInBangkok_2008.2015, select = -c(Month, X2016))
 AverageDTRInBangkok_2008.2015 <- subset(AverageDTRInBangkok_2008.2015, select = -2)
-
 AverageDTRInBangkok_2008.2015[,"Month"] <- month.abb
-
 AverageDTRInBangkok_2008.2015
-
 summary_DTR <- subset(AverageDTRInBangkok_2008.2015, select = -c(Month))
-#summary_DTR 
 ```
 
 The plot summary and visualization is given below: 
 
 ```{r DTRSummary, echo=TRUE}
-
 summary(summary_DTR)
 plot.ts(summary_DTR)
-
-
 ```
 
 Plotting DTR for all the years on the same plot. 
 
 ```{r DTRTogether, echo=FALSE}
 meltdf <- melt(AverageDTRInBangkok_2008.2015, id.vars = "Month")
+
 # Everything on the same plot
 
 meltdf$Month <- factor(meltdf$Month, levels = AverageDTRInBangkok_2008.2015$Month)
@@ -86,5 +79,33 @@ ggplot(meltdf,aes(x=Month,y=value,colour=variable,group=variable)) + geom_line(s
 ```
 
 
+##The average monthly rainfall in Bangkok.  
+
+```{r Rain, echo=FALSE}
+
+AverageRainInBangkok_2008.2015 <- read.csv("E:/Dengue Forecasting Project/DataAndCode/Datasets/prepare_data/AverageRainInBangkok_2008-2015.csv", check.names = FALSE)
+AverageRainInBangkok_2008.2015 <- subset(AverageRainInBangkok_2008.2015, select = -2)
+AverageRainInBangkok_2008.2015[,"Month"] <- month.abb
+AverageRainInBangkok_2008.2015
+summary_Rain<- subset(AverageRainInBangkok_2008.2015, select = -c(Month))
+```
+
+The plot summary for monthly rainfall and visualization is given below: 
+
+```{r RainSummary, echo=TRUE}
+summary(summary_Rain)
+plot.ts(summary_Rain)
+```
+
+Plotting average monthly rainfall for all the years on the same plot. 
+
+```{r RainTogether, echo=FALSE}
+meltdf <- melt(AverageRainInBangkok_2008.2015, id.vars = "Month")
+
+# Everything on the same plot
+meltdf$Month <- factor(meltdf$Month, levels = AverageRainInBangkok_2008.2015$Month)
+ggplot(meltdf,aes(x=Month,y=value,colour=variable,group=variable)) + geom_line(size=1.5)
+
+```
 
 
