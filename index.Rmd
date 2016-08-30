@@ -110,20 +110,34 @@ ggplot(meltdf,aes(x=Month,y=value,colour=variable,group=variable)) + geom_line(s
 
 ##The dengue incidences in Bangkok Districts 
 
-```{r}
+```{r DegueSurveillaneData, echo=FALSE, message=FALSE , results= "hide", }
 
+## Importing the data for dengue incidences
 dengue_bangkok_district_level_2008.2015 <- read.csv("E:/Dengue Forecasting Project/DataAndCode/Datasets/prepare_data/dengue_bangkok_district_level_2008-2015.csv", header = TRUE)
 
-head(dengue_bangkok_district_level_2008.2015)
+# Checking the data
+head(dengue_bangkok_district_level_2008.2015) 
 
-DHF_bangkok_district_level_2008.2015 <- subset(dengue_bangkok_district_level_2008.2015, disease_code == 26 )
-DHF_yearly_2008.2015 <- subset(DHF_bangkok_district_level_2008.2015, select = - c(geocode_district, disease_code ))
+## Taking the data only for DHF. The codes are:
+# DF = 66
+# DHF = 26
+# DSS = 27 
 
-head(DHF_yearly_2008.2015)
+DHF_bangkok_district_level_2008.2015 <- subset(dengue_bangkok_district_level_2008.2015, disease_code == 26)
+DHF_bangkok_district_level_2008.2015 <- subset(DHF_bangkok_district_level_2008.2015, (date_sick_year > 2007) & (date_sick_year < 2016 ))
+unique(DHF_bangkok_district_level_2008.2015$date_sick_year)
 
-a<-tapply(DHF_yearly_2008.2015$count, DHF_yearly_2008.2015$date_sick_year, FUN=sum)
+# Removing the columns about disease code and district codes. The yearly data is presented below
+DHF_total_2008.2015 <- subset(DHF_bangkok_district_level_2008.2015, select = - c(geocode_district, disease_code ))
+head(DHF_total_2008.2015)
 
 
+## Aggregating the data on DHF, according to the year. 
+totalDHF <- aggregate(count~ date_sick_year ,DHF_total_2008.2015,sum)
+
+totalDHF
+
+ggplot(totalDHF, aes(x = date_sick_year, y = count )) + geom_bar(stat = "identity")  + ggtitle(" Reported DHF incidents in Bangkok (2008-2015)") + labs(x="Year",y="Yearly Count Data") 
 
 ```
 
