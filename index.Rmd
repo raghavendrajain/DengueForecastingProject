@@ -16,26 +16,50 @@ This is an R Markdown document. Markdown is a simple formatting syntax for autho
 When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
 This is an edit once more. 
 
+```{r EntireData, echo=FALSE}
+
+AverageRainInBangkok_2008.2015 <- read.csv("E:/Dengue Forecasting Project/DataAndCode/Datasets/prepare_data/AverageRainInBangkok_2008-2015.csv")
+
+connected_district <- read.csv("E:/Dengue Forecasting Project/DataAndCode/Datasets/prepare_data/connected_district.csv")
+
+connected_district_code <- read.csv("E:/Dengue Forecasting Project/DataAndCode/Datasets/prepare_data/connected_district_code.csv", header = FALSE)
+
+dengue_bangkok_district_level_2008.2015 <- read.csv("E:/Dengue Forecasting Project/DataAndCode/Datasets/prepare_data/dengue_bangkok_district_level_2008-2015.csv")
+
+district_code <- read.csv("E:/Dengue Forecasting Project/DataAndCode/Datasets/prepare_data/district_code.csv")
+
+district_code_with_comunity_data <- read.csv("E:/Dengue Forecasting Project/DataAndCode/Datasets/prepare_data/district_code_with_comunity_data.csv")
+
+district_garbage_data <- read.csv("E:/Dengue Forecasting Project/DataAndCode/Datasets/prepare_data/district_garbage_data.csv")
+
+district_population <- read.csv("E:/Dengue Forecasting Project/DataAndCode/Datasets/prepare_data/district_population.csv")
+
+match_district_code_table <- read.csv("E:/Dengue Forecasting Project/DataAndCode/Datasets/prepare_data/match_district_code_table.csv")
+
+```
 
 
-
+The diurnal temperature range (DTR) is the difference between the daily maximum and minimum temperature. 
 
 ```{r DTR, echo=FALSE}
-AverageDTRInBangkok_2008.2015 <- read.csv("E:/Dengue Forecasting Project/DataAndCode/Datasets/prepare_data/AverageDTRInBangkok_2008-2015.csv", header=TRUE)
+
+AverageDTRInBangkok_2008.2015 <- read.csv("E:/Dengue Forecasting Project/DataAndCode/Datasets/prepare_data/AverageDTRInBangkok_2008-2015.csv")
+
+AverageDTRInBangkok_2008.2015 <- subset(AverageDTRInBangkok_2008.2015, select = -c(Month, X2016))
+
+rownames(AverageDTRInBangkok_2008.2015) <- month.abb
+
+AverageDTRInBangkok_2008.2015
+
 ```
 
+The `plot summary` and `visualization` is given below: 
 
-```{r DataHeaders, echo=FALSE}
+```{r DTRSummary, echo=TRUE}
 summary(AverageDTRInBangkok_2008.2015)
+plot.ts(AverageDTRInBangkok_2008.2015)
 ```
 
+elecequip
 
-## Including Plots
 
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
