@@ -166,8 +166,31 @@ levels(totalDHF_TimeWise$date_sick_month) <- month.abb
 
 ggplot(totalDHF_TimeWise, aes(x = date_sick_month, y = count)) + geom_bar(stat = "identity")  + ggtitle("Reported DHF incidents in Bangkok (2008-2015)") + labs(x="Months",y="Aggregated Monthly Count Data Across Years") + facet_grid(date_sick_year ~. )
 
-#meltdf<- melt(totalDHF_TimeWise, id.vars = c("date_sick_month, date_sick_year"))
+
+
 
 
 ```
+
+
+```{r DegueSurveillaneData_DF, echo=FALSE, message=FALSE}
+
+## Rearranging the columns 
+
+totalDHF_TimeWise <- totalDHF_TimeWise[, c(2,1,3)]
+meltdf<- melt(totalDHF_TimeWise, id.vars = c("date_sick_month", "date_sick_year"))
+df_DHF <- cast(totalDHF_TimeWise, date_sick_month ~ date_sick_year )
+
+# df_DHF <- df_DHF[c(1, 9:2)]
+
+meltdf <- melt(df_DHF, id.vars = "date_sick_month")
+
+ggplot(meltdf,aes(x=date_sick_month,y=value, colour = as.character(date_sick_year), group = as.character(date_sick_year) )) + geom_line(size=1.5) + ggtitle("Reported DHF incidents in Bangkok (2008-2015)") + labs(x="Months",y="Aggregated Monthly Count Data Across Years") + guides(fill=guide_legend(title=NULL))
+
+```
+
+
+
+
+
 
