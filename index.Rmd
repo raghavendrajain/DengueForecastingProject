@@ -1,5 +1,5 @@
 ---
-title: "DataExploration"
+title: "Dengue Forecasting Project"
 author: "Raghvendra Jain"
 date: "August 29, 2016"
 output: html_document
@@ -9,12 +9,12 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Denue 
+# Exploratory Data Analysis
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+<!-- This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>. -->
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-This is an edit once more. 
+<!-- When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this: -->
+<!-- This is an edit once more.  -->
 
 ```{r, echo=TRUE, message=FALSE}
 
@@ -48,7 +48,7 @@ match_district_code_table <- read.csv("E:/Dengue Forecasting Project/DataAndCode
 ```
 
 
-##The diurnal temperature range (DTR) is the difference between the daily maximum and minimum temperature. 
+## The diurnal temperature range (DTR) is the difference between the daily maximum and minimum temperature. 
 
 ```{r DTR, echo=FALSE}
 
@@ -187,7 +187,51 @@ meltdf <- melt(df_DHF, id.vars = "date_sick_month")
 
 ggplot(meltdf,aes(x=date_sick_month,y=value, colour = as.character(date_sick_year), group = as.character(date_sick_year) )) + geom_line(size=1.5) + ggtitle("Reported DHF incidents in Bangkok (2008-2015)") + labs(x="Months",y="Aggregated Monthly Count Data Across Years") + guides(fill=guide_legend(title=NULL))
 
+## Reordering columns to be in the same format as that of other data frames. 
+df_DHF <- df_DHF[c(1, 9:2)]
+
 ```
+
+```{r ListOfdfs, echo= FALSE, message= FALSE, results="hide" }
+
+## This makes the list of dataframes for each district
+
+DHF_dist_2008.2015 <- subset(DHF_bangkok_district_level_2008.2015, select = - c(disease_code ))
+length(unique(DHF_dist_2008.2015$geocode_district))
+
+listofdfs <- list()
+totalDHFdfs <- list()
+meltdfs <- list()
+df_DHFs <- list()
+
+for (i in 1000:1050)
+{
+  listofdfs[[i]] <- subset(DHF_dist_2008.2015, geocode_district == i  )
+  totalDHFdfs[[i]] <- aggregate(count ~ date_sick_year + date_sick_month, listofdfs[[i]], sum)
+  meltdfs[[i]] <- melt(totalDHFdfs[[i]], id.vars = c("date_sick_month", "date_sick_year"))
+  df_DHFs[[i]] <- cast( meltdfs[[i]], date_sick_month ~ date_sick_year )
+  
+}
+
+
+```
+
+
+```{r CombingingPredictors, echo= FALSE, message= FALSE, results="hide"}
+
+## We Start with taking the large df of DHF incidents. 
+
+head(DHF_dist_2008.2015)
+names(DHF_dist_2008.2015) # "geocode_district" "date_sick_year"   "date_sick_month"  "count" 
+
+# We add the DTR and rainfall data in the same dataframe.  
+# Both these data are same for all districts. They vary only according to the year and month. \
+
+DHF_dist_2008.2015 <- DHF_dist_2008.2015[order("date_sick_month"),  ]
+
+
+```
+
 
 
 
