@@ -1,7 +1,7 @@
 ---
 title: "Dengue Forecasting Project"
 author: "Raghvendra Jain"
-date: "August 29, 2016"
+date: "September 21, 2016"
 output: html_document
 ---
 
@@ -309,13 +309,9 @@ names(total)
 
 ```
 
+## The Prediction Starts here 
 
-<!-- ```{r linearmodeling} -->
-
-<!-- gm1 <- lm(count ~ DTR + Rainfall + , data = total) -->
-
-<!-- ``` -->
-
+summary(total)
 
 
 
