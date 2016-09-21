@@ -311,8 +311,10 @@ names(total)
 
 ## The Prediction Starts here 
 
-summary(total)
-str(total)
+## Also here 
+
+
+
 
 
 
