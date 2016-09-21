@@ -26,24 +26,31 @@ require(bnlearn)
 ```
 
 
-```{r EntireData, echo=FALSE}
+```{r EntireData, echo=FALSE, results='hide'}
 
 
 connected_district <- read.csv("E:/Dengue Forecasting Project/DataAndCode/Datasets/prepare_data/connected_district.csv")
+head(connected_district)
 
-connected_district_code <- read.csv("E:/Dengue Forecasting Project/DataAndCode/Datasets/prepare_data/connected_district_code.csv", header = FALSE)
-
-
+connected_district_code <- read.csv("E:/Dengue Forecasting Project/DataAndCode/Datasets/prepare_data/connected_district_code.csv", header = TRUE, check.names = FALSE)
+head(connected_district_code)
 
 district_code <- read.csv("E:/Dengue Forecasting Project/DataAndCode/Datasets/prepare_data/district_code.csv")
+head(district_code)
 
 district_code_with_comunity_data <- read.csv("E:/Dengue Forecasting Project/DataAndCode/Datasets/prepare_data/district_code_with_comunity_data.csv")
+head(district_code_with_comunity_data)
 
 district_garbage_data <- read.csv("E:/Dengue Forecasting Project/DataAndCode/Datasets/prepare_data/district_garbage_data.csv")
+head(district_garbage_data)
 
 district_population <- read.csv("E:/Dengue Forecasting Project/DataAndCode/Datasets/prepare_data/district_population.csv")
+head(district_population)
 
 match_district_code_table <- read.csv("E:/Dengue Forecasting Project/DataAndCode/Datasets/prepare_data/match_district_code_table.csv")
+head(match_district_code_table)
+
+## Result: It seems that district_population is most comprehensive. 
 
 ```
 
@@ -258,14 +265,56 @@ ggplot(climateTotal, aes(x = Rainfall, y = DTR, color )) + geom_point(size=1.5) 
 ggplot(climateTotal, aes(x = Rainfall, y = DTR, group = date_sick_year, color = date_sick_year)) + geom_point(size=1.5)  + ggtitle("Interaction of Climate Variables (2008-2015)") + labs(x="Rainfall (mm)",y="Diurnal Temperature Range") + facet_grid( . ~ date_sick_month ) 
 
 
-
 ## Merging climate variables with DHF data
-
 total <- merge(DHF_dist_2008.2015, climateTotal) 
+district_population
+names(district_population)
+
+# [1] "geocode_district"                 "district_name"                    "population_1..From.DDC.Source."  
+#  [4] "Community"                        "area_km2"                         "population_2..From.Bangkok.stat."
+#  [7] "Age...35"                         "Age..35"                          "X0.4"                            
+# [10] "X5.9"                             "X10.14"                           "X15.19"                          
+# [13] "X20.24"                           "X25.29"                           "X30.34"                          
+# [16] "X35.39"                           "X40.44"                           "X45.49"                          
+# [19] "X50.54"                           "X55.59"                           "X60.64"                          
+# [22] "X65.69"                           "X70.74"                           "X75.79"                          
+# [25] "X80.84"                           "X85.89"                           "X90.94"                          
+# [28] "X95.99"                           "X..100"                          
+
+
+total <- merge(total, district_population, by= "geocode_district") 
+any(is.na(total))
+
+# Sum of the neighbors of each district
+
+neighbors<- apply(connected_district_code[,-1],1, sum)
+dist_neighbor <- cbind(data.frame(connected_district_code$geocode_district), data.frame(neighbors))
+names(dist_neighbor) <- c("geocode_district", "neighbors")
+total <- merge(total, dist_neighbor, by= "geocode_district") 
+
+names(total)
+
+#  [1] "geocode_district"                 "date_sick_year"                   "date_sick_month"                 
+#  [4] "count"                            "DTR"                              "Rainfall"                        
+#  [7] "district_name"                    "population_1..From.DDC.Source."   "Community"                       
+# [10] "area_km2"                         "population_2..From.Bangkok.stat." "Age...35"                        
+# [13] "Age..35"                          "X0.4"                             "X5.9"                            
+# [16] "X10.14"                           "X15.19"                           "X20.24"                          
+# [19] "X25.29"                           "X30.34"                           "X35.39"                          
+# [22] "X40.44"                           "X45.49"                           "X50.54"                          
+# [25] "X55.59"                           "X60.64"                           "X65.69"                          
+# [28] "X70.74"                           "X75.79"                           "X80.84"                          
+# [31] "X85.89"                           "X90.94"                           "X95.99"                          
+# [34] "X..100"                           "neighbors"                       
 
 ```
 
 
+<!-- ```{r linearmodeling} -->
+
+<!-- gm1 <- lm(count ~ DTR + Rainfall + , data = total) -->
+
+<!-- ``` -->
 
 
 
