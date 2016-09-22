@@ -2,19 +2,25 @@
 title: "Dengue Forecasting Project"
 author: "Raghvendra Jain"
 date: "September 21, 2016"
-output: html_document
+output: 
+  html_document: 
+    fig_caption: yes
+    number_sections: yes
+    toc: yes
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+
+#Abstract
+
+To create early warning system of dengue outbreaks, we present a machine learning-based methodology capable of providing real-time (“nowcast”) and forecast estimates of dengue prediction in each of the fifty districts of Thailand by leveraging data from multiple data sources. Using a set of prediction variables we show an increasing prediction accuracy of the model with an optimal combination of predictors which include: meteorological data, clinical data, lag variables of disease surveillance, socio-economic data and the data  encoding spatial dependence on dengue transmission. We use generalized Generalized Additive Models (GAMs) to fit the relationships between the predictors and the clinical data of Dengue hemorrhagic fever (DHF) on the basis of the data from 2008 to 2012. Using the data from  2013 to 2015 and a comparative set of prediction models we evaluate the predictive ability of the fitted models according to RMSE and SRMSE, BIC as well as AIC. We also show that for the prediction of dengue outbreaks within a district, the influence of dengue incidences and socio-economic data from the surrounding districts is **statistically significant**, possibly indicating the influence of movement patterns of people and spatial heterogeneity of human activities on the spread of the epidemic.
+
+
 # Exploratory Data Analysis
 
-<!-- This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>. -->
-
-<!-- When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this: -->
-<!-- This is an edit once more.  -->
 
 ```{r, echo=TRUE, message=FALSE}
 
@@ -313,9 +319,12 @@ names(total)
 
 ## Also here 
 
+```{r fig1,fig.width=4,fig.height=4,echo=FALSE,message=FALSE,include=TRUE,fig.cap="The plot shows that You are fucked up."}
 
+plot(rnorm(100,2),rnorm(100,8))
+```
 
-
+Otherwise, the pdf document is created without any problems, it just misses the captions. I have read in the knitr manual and in many other questions about the topic that the chunk option fig.cap will add the figure environment. I tried to add the fig.env=TRUE option, as well, but the results are the same. Is this an issue with rmarkdown in rstudio only or is it that in general it will not work?
 
 
 
