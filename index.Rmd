@@ -476,6 +476,21 @@ ggplot(data=d3, aes(x=Date)) +
   ggtitle(paste0("BSTS -- Holdout MAPE = ", round(100*MAPE,2), "%")) +
   theme(axis.text.x=element_text(angle = -90, hjust = 0))
 
+### Extract the components
+components <- cbind.data.frame(
+  colMeans(bsts.model$state.contributions[-(1:burn),"trend",]),                               
+  colMeans(bsts.model$state.contributions[-(1:burn),"seasonal.12.1",]),
+  as.Date(time(Y)))  
+names(components) <- c("Trend", "Seasonality", "Date")
+components <- melt(components, id="Date")
+names(components) <- c("Date", "Component", "Value")
+
+### Plot
+ggplot(data=components, aes(x=Date, y=Value)) + geom_line() + 
+  theme_bw() + theme(legend.title = element_blank()) + ylab("") + xlab("") + 
+  facet_grid(Component ~ ., scales="free") + guides(colour=FALSE) + 
+  theme(axis.text.x=element_text(angle = -90, hjust = 0))
+
 
 ```
 
