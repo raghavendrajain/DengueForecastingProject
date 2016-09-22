@@ -21,15 +21,23 @@ To create early warning system of dengue outbreaks, we present a machine learnin
 
 # Exploratory Data Analysis
 
+I important the following packages into R. 
 
-```{r, echo=TRUE, message=FALSE}
+```{r LoadPackages, echo=TRUE, message=FALSE}
 
-require(ggplot2)
+require(ggplot2) # used in plotting 
 require(reshape)
 require(plotly)
-require(bnlearn)
+require(bnlearn) # used for Bayesian Networks
+require(mgcv)    # used for Generalized Additive Modeling 
+require(fpp)
+require(lubridate)
+require(bsts)
+require(dplyr)
+require(CausalImpact)
 
 ```
+
 
 
 ```{r EntireData, echo=FALSE, results='hide'}
@@ -59,6 +67,13 @@ head(match_district_code_table)
 ## Result: It seems that district_population is most comprehensive. 
 
 ```
+
+The description of the data variables. 
+
+Variable Name | Description
+------------- | -------------
+connected_district  | The rows have the names of 50 districts of Bangkok. The colums tell its connecions to other districts.
+Cell 3 | Cell 4 
 
 
 ## The diurnal temperature range (DTR) is the difference between the daily maximum and minimum temperature. 
