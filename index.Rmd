@@ -539,13 +539,13 @@ names(bayesianDF)[names(bayesianDF) == 'date_sick_month'] <- 'Month'
 Month <- bayesianDF$Month
 
 bayesianDF.train <- subset(bayesianDF, date_sick_year!= 2015 )
-bayesianDF.train <- subset(bayesianDF.train, select=c("count", "DTR", "Rainfall", "Month"))
+bayesianDF.train <- subset(bayesianDF.train, select=c("geocode_district", "count", "DTR", "Rainfall", "Month"))
 
 
 bayesianDF.test <- subset(bayesianDF, date_sick_year== 2015 )
-bayesianDF.test <- subset(bayesianDF.test, select=c("count", "DTR", "Rainfall", "Month"))
+bayesianDF.test <- subset(bayesianDF.test, select=c("geocode_district", "count", "DTR", "Rainfall", "Month"))
 
-dag<-model2network("[Month][DTR|Month][Rainfall|Month][count|DTR:Rainfall]")
+dag<-model2network("[Month][geocode_district][DTR|Month][Rainfall|Month][count|DTR:Rainfall:geocode_district]")
 
 graphviz.plot(dag)
 
