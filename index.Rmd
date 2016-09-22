@@ -496,7 +496,7 @@ ggplot(data=components, aes(x=Date, y=Value)) + geom_line() +
 
 ## A Structured Bayesian Network Approach
 
-```{r HybridBayesianNet, echo=FALSE, results='hide'}
+```{r HybridBayesianNet, echo=FALSE, results='hide', message=FALSE}
 
 names(total)
 bayesianDF <- subset(total, select=c("geocode_district", "date_sick_year", "date_sick_month", "count", "DTR", "Rainfall"))
@@ -521,6 +521,49 @@ accuracy(f = pred, x =  bayesianDF.test[, "count"])
 
 ```
 
+```{r newBN, echo= FALSE, results='hide'}
+
+total<-total[order(total$date_sick_year, total$date_sick_month), ]
+bayesianDF <- subset(total, select=c("geocode_district", "date_sick_year", "date_sick_month", "count", "DTR", "Rainfall"))
+bayesianDF$geocode_district <- as.factor(bayesianDF$geocode_district)
+bayesianDF$date_sick_year<- as.factor(bayesianDF$date_sick_year)
+bayesianDF$date_sick_month <- as.factor(bayesianDF$date_sick_month)
+
+# 
+
+DTR <- bayesianDF$DTR
+Rainfall<- bayesianDF$Rainfall
+count <- bayesianDF$count
+bayesianDF$count <- as.numeric(bayesianDF$count)
+names(bayesianDF)[names(bayesianDF) == 'date_sick_month'] <- 'Month'
+Month <- bayesianDF$Month
+
+bayesianDF.train <- subset(bayesianDF, date_sick_year!= 2015 )
+bayesianDF.train <- subset(bayesianDF.train, select=c("count", "DTR", "Rainfall", "Month"))
+
+
+bayesianDF.test <- subset(bayesianDF, date_sick_year== 2015 )
+bayesianDF.test <- subset(bayesianDF.test, select=c("count", "DTR", "Rainfall", "Month"))
+
+dag<-model2network("[Month][DTR|Month][Rainfall|Month][count|DTR:Rainfall]")
+
+graphviz.plot(dag)
+
+
+
+fit_1<- bn.fit(dag, bayesianDF.train)
+
+pred = predict(fit_1, "count", bayesianDF.test)  # predicts the value of node count given test set
+cbind(pred, bayesianDF.test[, "count"])  
+accuracy(f = pred, x =  bayesianDF.test[, "count"])
+
+```
+
+
+
+```{r}
+accuracy(f = pred, x =  bayesianDF.test[, "count"])
+```
 
 
 
