@@ -35,54 +35,98 @@ require(lubridate)
 require(bsts)
 require(dplyr)
 require(CausalImpact)
-
+require(xtable)
 ```
 
 
 
-```{r EntireData, echo=FALSE, results='hide'}
 
 
+
+## The description of variables
+
+
+```{r ConnectedDistrict, echo=FALSE, results='hide' }
 connected_district <- read.csv("E:/Dengue Forecasting Project/DataAndCode/Datasets/prepare_data/connected_district.csv")
+connected_district <- connected_district[,-2] # I removed the Thai name
 head(connected_district)
+# print(head(connected_district), type = 'html')
+
+```
+
+
+```{r ConnectedDistrictCode, echo=FALSE, results='hide' }
 
 connected_district_code <- read.csv("E:/Dengue Forecasting Project/DataAndCode/Datasets/prepare_data/connected_district_code.csv", header = TRUE, check.names = FALSE)
 head(connected_district_code)
 
+
+```
+
+```{r DistrictCode, echo=FALSE, results='hide'}
+
+#Has geocodes, postal code of each of the district, their names, population and area.
+
 district_code <- read.csv("E:/Dengue Forecasting Project/DataAndCode/Datasets/prepare_data/district_code.csv")
 head(district_code)
+
+```
+
+
+```{r CommunityData, echo=FALSE, results='hide'}
+
+# Tells about the number of communities, population from 2014, families and households. The family and household data are same. 
 
 district_code_with_comunity_data <- read.csv("E:/Dengue Forecasting Project/DataAndCode/Datasets/prepare_data/district_code_with_comunity_data.csv")
 head(district_code_with_comunity_data)
 
+```
+
+```{r GarbageData, echo=FALSE, results='hide'}
+
 district_garbage_data <- read.csv("E:/Dengue Forecasting Project/DataAndCode/Datasets/prepare_data/district_garbage_data.csv")
 head(district_garbage_data)
 
-district_population <- read.csv("E:/Dengue Forecasting Project/DataAndCode/Datasets/prepare_data/district_population.csv")
-head(district_population)
+```
 
+```{r DistrictCodes, echo=FALSE, results='hide'}
 match_district_code_table <- read.csv("E:/Dengue Forecasting Project/DataAndCode/Datasets/prepare_data/match_district_code_table.csv")
 head(match_district_code_table)
+```
+
+```{r DistrictPopulation, echo=FALSE, results='hide'}
 
 ## Result: It seems that district_population is most comprehensive. 
 
+district_population <- read.csv("E:/Dengue Forecasting Project/DataAndCode/Datasets/prepare_data/district_population.csv")
+head(district_population)
 ```
 
-The description of the data variables. 
+
+
+
+
+The description of the data variables.
 
 Variable Name | Description
 ------------- | -------------
-connected_district  | The rows have the names of 50 districts of Bangkok. The colums tell its connecions to other districts.
-Cell 3 | Cell 4 
+connected_district_code | The rows have the codes of 50 districts of Bangkok. The colums tell its connecions to other districts.
+district_code | Has geocodes, postal code of each of the district, their names, population and area.
+district_garbage_data | Has yearly and daily average gardbage collection data for 3 consecutive years.
+district_population | Has population deographics into age groups in each district, their total population, number of communities and the total area.
 
 
-## The diurnal temperature range (DTR) is the difference between the daily maximum and minimum temperature. 
 
-```{r DTR, echo=FALSE}
+
+## The diurnal temperature range (DTR)
+
+DTR is the difference between the daily maximum and minimum temperature. 
+
+```{r DTR, echo=FALSE,  results='hide'}
 
 AverageDTRInBangkok_2008.2015 <- read.csv("E:/Dengue Forecasting Project/DataAndCode/Datasets/prepare_data/AverageDTRInBangkok_2008-2015.csv",check.names = FALSE)
 
-AverageDTRInBangkok_2008.2015 <- subset(AverageDTRInBangkok_2008.2015, select = -2)
+AverageDTRInBangkok_2008.2015 <- subset(AverageDTRInBangkok_2008.2015, select = -2) # we remove the data of 2016
 AverageDTRInBangkok_2008.2015[,"Month"] <- month.abb
 AverageDTRInBangkok_2008.2015
 summary_DTR <- subset(AverageDTRInBangkok_2008.2015, select = -c(Month))
@@ -91,7 +135,7 @@ summary_DTR <- subset(AverageDTRInBangkok_2008.2015, select = -c(Month))
 The plot summary and visualization is given below: 
 
 ```{r DTRSummary, echo=TRUE}
-summary(summary_DTR)
+AverageDTRInBangkok_2008.2015
 plot.ts(summary_DTR)
 ```
 
@@ -110,10 +154,11 @@ ggplot(meltdf,aes(x=Month,y=value,colour=variable,group=variable)) + geom_line(s
 
 ##The average monthly rainfall in Bangkok.  
 
-```{r Rain, echo=FALSE}
+```{r Rain, echo=FALSE,  results='hide'}
 
 AverageRainInBangkok_2008.2015 <- read.csv("E:/Dengue Forecasting Project/DataAndCode/Datasets/prepare_data/AverageRainInBangkok_2008-2015.csv", check.names = FALSE)
-AverageRainInBangkok_2008.2015 <- subset(AverageRainInBangkok_2008.2015, select = -2)
+
+AverageRainInBangkok_2008.2015 <- subset(AverageRainInBangkok_2008.2015, select = -2) #removing 2016
 AverageRainInBangkok_2008.2015[,"Month"] <- month.abb
 AverageRainInBangkok_2008.2015
 summary_Rain<- subset(AverageRainInBangkok_2008.2015, select = -c(Month))
@@ -122,7 +167,7 @@ summary_Rain<- subset(AverageRainInBangkok_2008.2015, select = -c(Month))
 The plot summary for monthly rainfall and visualization is given below: 
 
 ```{r RainSummary, echo=TRUE}
-summary(summary_Rain)
+AverageRainInBangkok_2008.2015
 plot.ts(summary_Rain)
 ```
 
@@ -130,14 +175,15 @@ Plotting average monthly rainfall for all the years on the same plot.
 
 ```{r RainTogether, echo=FALSE}
 meltdf <- melt(AverageRainInBangkok_2008.2015, id.vars = "Month")
-
 # Everything on the same plot
 meltdf$Month <- factor(meltdf$Month, levels = AverageRainInBangkok_2008.2015$Month)
 ggplot(meltdf,aes(x=Month,y=value,colour=variable,group=variable)) + geom_line(size=1.5) + ggtitle("Average Monthly Rainfall in Bangkok (2008-2015)") + labs(x="Months",y="Average Monthly Rainfall(mm)") 
 
 ```
 
-##The dengue incidences in Bangkok Districts 
+
+
+## The dengue incidences in Bangkok Districts 
 
 ```{r DegueSurveillaneData, echo=FALSE, message=FALSE , results= "hide"}
 
@@ -166,14 +212,11 @@ totalDHF <- aggregate(count ~ date_sick_year, DHF_total_2008.2015,sum)
 
 totalDHF
 
-
 ggplot(totalDHF, aes(x = date_sick_year, y = count )) + geom_bar(stat = "identity")  + ggtitle("Reported annual DHF incidents in Bangkok (2008-2015)") + labs(x="Year",y="Yearly Count Data")
 
 ```
 
 The plot shows the Dengue hemorrhagic fever(DHF) incidence peaked in 2013 and 2015. 
-
-
 
 ```{r DegueSurveillaneData_Monthly, echo=FALSE, message=FALSE , results= "hide"}
 
@@ -193,10 +236,6 @@ totalDHF_TimeWise$date_sick_month <- factor(totalDHF_TimeWise$date_sick_month)
 levels(totalDHF_TimeWise$date_sick_month) <- month.abb
 
 ggplot(totalDHF_TimeWise, aes(x = date_sick_month, y = count)) + geom_bar(stat = "identity")  + ggtitle("Reported DHF incidents in Bangkok (2008-2015)") + labs(x="Months",y="Aggregated Monthly Count Data Across Years") + facet_grid(date_sick_year ~. )
-
-
-
-
 
 ```
 
@@ -330,16 +369,116 @@ names(total)
 
 ```
 
-## The Prediction Starts here 
 
-## Also here 
 
-```{r fig1,fig.width=4,fig.height=4,echo=FALSE,message=FALSE,include=TRUE,fig.cap="The plot shows that You are fucked up."}
+```{r TimeSeries, echo= FALSE, results='hide'}
+# The time series have the data for all months from 2008 to 2015:
 
-plot(rnorm(100,2),rnorm(100,8))
+df_DHF 
+AverageDTRInBangkok_2008.2015 [, "Month"] <- month.abb
+AverageRainInBangkok_2008.2015  [, "Month"] <- month.abb
+
 ```
 
-Otherwise, the pdf document is created without any problems, it just misses the captions. I have read in the knitr manual and in many other questions about the topic that the chunk option fig.cap will add the figure environment. I tried to add the fig.env=TRUE option, as well, but the results are the same. Is this an issue with rmarkdown in rstudio only or is it that in general it will not work?
+
+
+
+
+#The Prediction Starts here 
+
+## Using ARIMA model for The DHF Data
+
+```{r ARIMA DHF, echo=FALSE}
+
+df<-df_DHF 
+#Converting data frame into vectors
+vec <- c(unlist(df[,2]), unlist(df[,3]), unlist(df[,4]), unlist(df[,5]), unlist(df[,6]), unlist(df[,7]), unlist(df[,8]), unlist(df[,9]))
+tsa_DF<-ts(vec,start=c(2008,1),end=c(2015,12),frequency=12)
+
+Y <- window(tsa_DF, start=c(2008, 1), end=c(2014,12))
+arima <- arima(log10(Y), 
+               order=c(0, 1, 1), 
+               seasonal=list(order=c(0,1,1), period=12))
+### Actual versus predicted
+d1 <- data.frame(c(10^as.numeric(fitted(arima)), # fitted and predicted
+                   10^as.numeric(predict(arima, n.ahead = 12)$pred)),
+                   as.numeric(tsa_DF), #actual values
+                   as.Date(time(tsa_DF)))
+names(d1) <- c("Fitted", "Actual", "Date")
+
+### MAPE (mean absolute percentage error)
+MAPE <- filter(d1, year(Date)>2014) %>% summarise(MAPE=mean(abs(Actual-Fitted)/Actual))
+
+### Plot actual versus predicted
+ggplot(data=d1, aes(x=Date)) +
+  geom_line(aes(y=Actual, colour = "Actual"), size=1.2) +
+  geom_line(aes(y=Fitted, colour = "Fitted"), size=1.2, linetype=2) +
+  theme_bw() + theme(legend.title = element_blank()) + 
+  ylab("") + xlab("") +
+  geom_vline(xintercept=as.numeric(as.Date("2014-12-01")), linetype=2) +
+  ggtitle(paste0("ARIMA -- Holdout MAPE = ", round(100*MAPE,2), "%")) + 
+  theme(axis.text.x=element_text(angle = -90, hjust = 0))
+
+```
+
+
+
+
+
+## A Bayesian Structural Time Series Model
+
+```{r bsts, echo=FALSE}
+
+Y <- window(tsa_DF, start=c(2008, 1), end=c(2014,12))
+y <- log10(Y)
+
+### Run the bsts model
+ss <- AddLocalLinearTrend(list(), y)
+ss <- AddSeasonal(ss, y, nseasons = 12)
+bsts.model <- bsts(y, state.specification = ss, niter = 500, ping=0, seed=2016)
+
+### Get a suggested number of burn-ins
+burn <- SuggestBurn(0.1, bsts.model)
+
+### Predict
+p <- predict.bsts(bsts.model, horizon = 12, burn = burn, quantiles = c(.025, .975))
+
+### Actual versus predicted
+d2 <- data.frame(
+    # fitted values and predictions
+    c(10^as.numeric(-colMeans(bsts.model$one.step.prediction.errors[-(1:burn),])+y),  
+    10^as.numeric(p$mean)),
+    # actual data and dates 
+    as.numeric(tsa_DF),
+    as.Date(time(tsa_DF)))
+names(d2) <- c("Fitted", "Actual", "Date")
+
+### MAPE (mean absolute percentage error)
+MAPE <- filter(d2, year(Date)>2014) %>% summarise(MAPE=mean(abs(Actual-Fitted)/Actual))
+
+### 95% forecast credible interval
+posterior.interval <- cbind.data.frame(
+  10^as.numeric(p$interval[1,]),
+  10^as.numeric(p$interval[2,]), 
+  subset(d2, year(Date)>2014)$Date)
+names(posterior.interval) <- c("LL", "UL", "Date")
+
+### Join intervals to the forecast
+d3 <- left_join(d2, posterior.interval, by="Date")
+
+### Plot actual versus predicted with credible intervals for the holdout period
+ggplot(data=d3, aes(x=Date)) +
+  geom_line(aes(y=Actual, colour = "Actual"), size=1.2) +
+  geom_line(aes(y=Fitted, colour = "Fitted"), size=1.2, linetype=2) +
+  theme_bw() + theme(legend.title = element_blank()) + ylab("") + xlab("") +
+  geom_vline(xintercept=as.numeric(as.Date("2014-12-01")), linetype=2) + 
+  geom_ribbon(aes(ymin=LL, ymax=UL), fill="grey", alpha=0.5) +
+  ggtitle(paste0("BSTS -- Holdout MAPE = ", round(100*MAPE,2), "%")) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0))
+
+
+```
+
 
 
 
