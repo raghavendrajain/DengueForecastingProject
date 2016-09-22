@@ -494,6 +494,33 @@ ggplot(data=components, aes(x=Date, y=Value)) + geom_line() +
 
 ```
 
+## A Structured Bayesian Network Approach
+
+```{r HybridBayesianNet, echo=FALSE, results='hide'}
+
+names(total)
+bayesianDF <- subset(total, select=c("geocode_district", "date_sick_year", "date_sick_month", "count", "DTR", "Rainfall"))
+bayesianDF$geocode_district <- as.factor(bayesianDF$geocode_district)
+bayesianDF$date_sick_year<- as.factor(bayesianDF$date_sick_year)
+bayesianDF$date_sick_month <- as.factor(bayesianDF$date_sick_month)
+bayesianDF$count <- as.numeric(bayesianDF$count)
+bayesianDF.train <- bayesianDF[1:4000, ]
+bayesianDF.test <- bayesianDF[4001: 4719 , ]
+dag = hc(bayesianDF.train)
+graphviz.plot(dag)
+fit = bn.fit(dag, bayesianDF.train)
+pred = predict(fit, "count", bayesianDF.test)  # predicts the value of node count given test set
+cbind(pred, bayesianDF.test[, "count"])         # compare the actual and predicted
+
+
+```
+
+```{r bnResults, echo= FALSE}
+
+accuracy(f = pred, x =  bayesianDF.test[, "count"])
+
+```
+
 
 
 
