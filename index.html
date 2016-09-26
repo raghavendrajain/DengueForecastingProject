@@ -147,12 +147,13 @@ $(document).ready(function () {
 </div>
 <div id="hypothesis" class="section level1">
 <h1><span class="header-section-number">2</span> Hypothesis</h1>
-<p><span class="math inline">\(H_1:\)</span> The inclusion of the data from past dengue incidences and socio-economic data from its surrounding districts is required for accurate prediction of dengue outbreak in a particular district.</p>
-<p><span class="math inline">\(H_2:\)</span></p>
+<p><span class="math inline">\(H_1:\)</span> To forecast dengue incidences in a particular district, the influence of the data from past dengue incidences and socio-economic data from its <strong>surrounding districts</strong> is statistically significant.</p>
+<p><span class="math inline">\(H_2:\)</span> To forecast dengue incidences, a data-driven interpretable, non-parametric time-series forecasting approach (e.g. Generalized Additive Models (GAMs)) is statistically better than parametric modeling approaches (e.g. ARIMA.)</p>
+<p><span class="math inline">\(H_3:\)</span> To forecast dengue incidences, an ensemble forecasting model with Bayesian Network and time-series modeling approach is statistically better than the individual models.</p>
 </div>
 <div id="exploratory-data-analysis" class="section level1">
 <h1><span class="header-section-number">3</span> Exploratory Data Analysis</h1>
-<p>I important the following packages into R.</p>
+<p>I import the important the following packages into R.</p>
 <pre class="r"><code>require(ggplot2) # used in plotting 
 require(reshape)
 require(plotly)

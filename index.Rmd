@@ -20,14 +20,18 @@ To create early warning system of dengue outbreaks, we present a machine learnin
 
 # Hypothesis
 
-$H_1:$ The inclusion of the data from past dengue incidences and socio-economic data from its surrounding districts is required for accurate prediction of dengue outbreak in a particular district. 
+$H_1:$ To forecast dengue incidences in a particular district, the influence of the data from past dengue incidences and socio-economic data from its **surrounding districts** is statistically significant.  
 
-$H_2:$ 
+$H_2:$ To forecast dengue incidences, a data-driven interpretable, non-parametric time-series forecasting approach (e.g. Generalized Additive Models (GAMs)) is statistically better than parametric modeling approaches (e.g. ARIMA.)
+
+$H_3:$ To forecast dengue incidences, an ensemble forecasting model with Bayesian Network and time-series modeling approach is statistically better than the individual models. 
+
+
 
 
 # Exploratory Data Analysis
 
-I important the following packages into R. 
+I import the important the following packages into R. 
 
 ```{r LoadPackages, echo=TRUE, message=FALSE}
 
