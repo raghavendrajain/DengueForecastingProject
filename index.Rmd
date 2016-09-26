@@ -398,20 +398,128 @@ AverageRainInBangkok_2008.2015  [, "Month"] <- month.abb
 
 ## Using ARIMA model for The DHF Data
 
-```{r ARIMA DHF, echo=FALSE}
+```{r timeSeries_DHF, echo=FALSE}
 
 df<-df_DHF 
 #Converting data frame into vectors
-vec <- c(unlist(df[,2]), unlist(df[,3]), unlist(df[,4]), unlist(df[,5]), unlist(df[,6]), unlist(df[,7]), unlist(df[,8]), unlist(df[,9]))
+vec <- c(unlist(df[,9]), unlist(df[,8]), unlist(df[,7]), unlist(df[,6]), unlist(df[,5]), unlist(df[,4]), unlist(df[,3]), unlist(df[,2]))
 tsa_DF<-ts(vec,start=c(2008,1),end=c(2015,12),frequency=12)
 
+```
+
+```{r tsPlots, echo=FALSE, results="hide"}
+
+#This will plot the time series
+plot(tsa_DF)
+# This will fit in a line
+abline(reg=lm(tsa_DF~time(tsa_DF)))
+
+#This will print the cycle across years.
+plot(aggregate(tsa_DF,FUN=mean))
+
+#Box plot across months will give us a sense on seasonal effect
+
+boxplot(tsa_DF~cycle(tsa_DF))
+acf(tsa_DF)
+pacf(tsa_DF)
+
+plot.ts(tsa_DF)
+
+fit <- stl(tsa_DF, s.window="period")
+plot(fit)
+
+# additional plots
+monthplot(tsa_DF)
+library(forecast)
+seasonplot(tsa_DF)
+
+```
+
+```{r autoArima, echo=FALSE, results="hide"}
+
+
 Y <- window(tsa_DF, start=c(2008, 1), end=c(2014,12))
-arima <- arima(log10(Y), 
+arima <- auto.arima(Y)
+### Actual versus predicted
+d1 <- data.frame(c(as.numeric(fitted(arima)), # fitted and predicted
+                   as.numeric(predict(arima, n.ahead = 12)$pred)),
+                   as.numeric(tsa_DF), #actual values
+                   as.Date(time(tsa_DF)))
+names(d1) <- c("Fitted", "Actual", "Date")
+
+### MAPE (mean absolute percentage error)
+MAPE <- filter(d1, year(Date)>2014) %>% summarise(MAPE=mean(abs(Actual-Fitted)/Actual))
+
+### Plot actual versus predicted
+ggplot(data=d1, aes(x=Date)) +
+  geom_line(aes(y=Actual, colour = "Actual"), size=1.2) +
+  geom_line(aes(y=Fitted, colour = "Fitted"), size=1.2, linetype=2) +
+  theme_bw() + theme(legend.title = element_blank()) + 
+  ylab("") + xlab("") +
+  geom_vline(xintercept=as.numeric(as.Date("2014-12-01")), linetype=2) +
+  ggtitle(paste0("ARIMA -- Holdout MAPE = ", round(100*MAPE,2), "%")) + 
+  theme(axis.text.x=element_text(angle = -90, hjust = 0))
+
+```
+
+```{r ets, echo=FALSE, results="hide"}
+
+
+Y <- window(tsa_DF, start=c(2008, 1), end=c(2014,12))
+etsModel <- ets(Y)
+### Actual versus predicted
+d1 <- data.frame(c(as.numeric(fitted(etsModel)), # fitted and predicted
+                   as.numeric(forecast(etsModel, h= 12)$mean)),
+                   as.numeric(tsa_DF), #actual values
+                   as.Date(time(tsa_DF)))
+names(d1) <- c("Fitted", "Actual", "Date")
+
+### MAPE (mean absolute percentage error)
+MAPE <- filter(d1, year(Date)>2014) %>% summarise(MAPE=mean(abs(Actual-Fitted)/Actual))
+
+### Plot actual versus predicted
+ggplot(data=d1, aes(x=Date)) +
+  geom_line(aes(y=Actual, colour = "Actual"), size=1.2) +
+  geom_line(aes(y=Fitted, colour = "Fitted"), size=1.2, linetype=2) +
+  theme_bw() + theme(legend.title = element_blank()) + 
+  ylab("") + xlab("") +
+  geom_vline(xintercept=as.numeric(as.Date("2014-12-01")), linetype=2) +
+  ggtitle(paste0("ETS -- Holdout MAPE = ", round(100*MAPE,2), "%")) + 
+  theme(axis.text.x=element_text(angle = -90, hjust = 0))
+
+```
+
+
+##Time Series Analysis in R
+
+First, let's plot the data
+
+```{r plotData, echo=FALSE}
+
+plot.ts(tsa_DF)
+
+```
+
+We can see from this time series that there seems to be seasonal variation in the number of dengue incidences per month: there is a peak every winter, and a trough every summer. Again, it seems that this time series could probably be described using an additive model, as the seasonal fluctuations are roughly constant in size over time and do not seem to depend on the level of the time series, and the random fluctuations also seem to be roughly constant in size over time. 
+
+Thus, we don't need to tranform the time series by calculating the natural log of the original data. 
+
+
+
+
+
+When a model is fit by manual setting of parameters. 
+
+
+```{r ARIMA_DHF, echo=FALSE}
+
+Y <- window(tsa_DF, start=c(2008, 1), end=c(2014,12))
+arima <- arima(Y, 
                order=c(0, 1, 1), 
                seasonal=list(order=c(0,1,1), period=12))
 ### Actual versus predicted
-d1 <- data.frame(c(10^as.numeric(fitted(arima)), # fitted and predicted
-                   10^as.numeric(predict(arima, n.ahead = 12)$pred)),
+d1 <- data.frame(c(as.numeric(fitted(arima)), # fitted and predicted
+                   as.numeric(predict(arima, n.ahead = 12)$pred)),
                    as.numeric(tsa_DF), #actual values
                    as.Date(time(tsa_DF)))
 names(d1) <- c("Fitted", "Actual", "Date")
@@ -435,12 +543,15 @@ ggplot(data=d1, aes(x=Date)) +
 
 
 
+
+
+
 ## A Bayesian Structural Time Series Model
 
 ```{r bsts, echo=FALSE}
 
 Y <- window(tsa_DF, start=c(2008, 1), end=c(2014,12))
-y <- log10(Y)
+y <- Y
 
 ### Run the bsts model
 ss <- AddLocalLinearTrend(list(), y)
@@ -456,8 +567,8 @@ p <- predict.bsts(bsts.model, horizon = 12, burn = burn, quantiles = c(.025, .97
 ### Actual versus predicted
 d2 <- data.frame(
     # fitted values and predictions
-    c(10^as.numeric(-colMeans(bsts.model$one.step.prediction.errors[-(1:burn),])+y),  
-    10^as.numeric(p$mean)),
+    c(as.numeric(-colMeans(bsts.model$one.step.prediction.errors[-(1:burn),])+y),  
+    as.numeric(p$mean)),
     # actual data and dates 
     as.numeric(tsa_DF),
     as.Date(time(tsa_DF)))
@@ -468,8 +579,8 @@ MAPE <- filter(d2, year(Date)>2014) %>% summarise(MAPE=mean(abs(Actual-Fitted)/A
 
 ### 95% forecast credible interval
 posterior.interval <- cbind.data.frame(
-  10^as.numeric(p$interval[1,]),
-  10^as.numeric(p$interval[2,]), 
+  as.numeric(p$interval[1,]),
+  as.numeric(p$interval[2,]), 
   subset(d2, year(Date)>2014)$Date)
 names(posterior.interval) <- c("LL", "UL", "Date")
 
