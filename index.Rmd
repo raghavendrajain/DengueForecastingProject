@@ -18,6 +18,12 @@ knitr::opts_chunk$set(echo = TRUE)
 
 To create early warning system of dengue outbreaks, we present a machine learning-based methodology capable of providing real-time (“nowcast”) and forecast estimates of dengue prediction in each of the fifty districts of Thailand by leveraging data from multiple data sources. Using a set of prediction variables we show an increasing prediction accuracy of the model with an optimal combination of predictors which include: meteorological data, clinical data, lag variables of disease surveillance, socio-economic data and the data  encoding spatial dependence on dengue transmission. We use generalized Generalized Additive Models (GAMs) to fit the relationships between the predictors and the clinical data of Dengue hemorrhagic fever (DHF) on the basis of the data from 2008 to 2012. Using the data from  2013 to 2015 and a comparative set of prediction models we evaluate the predictive ability of the fitted models according to RMSE and SRMSE, BIC as well as AIC. We also show that for the prediction of dengue outbreaks within a district, the influence of dengue incidences and socio-economic data from the surrounding districts is **statistically significant**, possibly indicating the influence of movement patterns of people and spatial heterogeneity of human activities on the spread of the epidemic.
 
+# Hypothesis
+
+$H_1:$ The inclusion of the data from past dengue incidences and socio-economic data from its surrounding districts is required for accurate prediction of dengue outbreak in a particular district. 
+
+$H_2:$ 
+
 
 # Exploratory Data Analysis
 
