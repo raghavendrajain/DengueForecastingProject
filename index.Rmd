@@ -973,13 +973,17 @@ sqrt(mean((training$count-p)^2,na.rm=T))/sqrt(mean((training$count)^2,na.rm=T))
 
 ```{r testing, echo=FALSE, results= "hide"}
 
+mod.train <- gam(count ~  s(templ1,k=4) + s(templ2,k=4) + s(templ3,k=4)+ s(rainl0,k=4) + s(rainl1,k=4) + s(rainl3,k=4) + s(count1,k=4), family=quasipoisson, na.action=na.exclude, data = training)
+
+summary(mod.train)
+
 preddata <- subset(data_1001, select  =  c(templ1, templ2, templ3, rainl0, rainl1,rainl3,count1) )
-data_1001$predict <-  predict(mod.fin, type="response", newdata=preddata)
+data_1001$predict <-  predict(mod.train, type="response", newdata=preddata)
 
 data_1001$p <- data_1001$predict
 
-train <- subset(data_1001,date_sick_year <2013)
-pred <- subset(data_1001, date_sick_year >2012)
+train <- subset(data_1001, date_sick_year < 2013)
+pred <- subset(data_1001, date_sick_year >  2013 & date_sick_year < 2015 )
 
 par(mfrow=c(1,1))
 plot(data_1001$time, data_1001$count, type="l")
@@ -996,10 +1000,6 @@ sqrt(mean((train$count-train$p)^2,na.rm=T))/sqrt(mean((training$count)^2,na.rm=T
 sqrt(mean((pred$count-pred$p)^2,na.rm=T))/sqrt(mean((pred$count)^2, na.rm=T))
 
 ```
-
-
-
-
 
 
 ## Notes to myself:
