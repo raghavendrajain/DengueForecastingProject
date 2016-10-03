@@ -380,6 +380,17 @@ names(total)
 ```
 
 
+```{r totalDataSaved, echo=FALSE, results="hide"}
+
+
+entireData <- total 
+
+
+```
+
+
+
+
 
 ```{r TimeSeries, echo= FALSE, results='hide'}
 # The time series have the data for all months from 2008 to 2015:
@@ -540,12 +551,6 @@ ggplot(data=d1, aes(x=Date)) +
 ```
 
 
-
-
-
-
-
-
 ## A Bayesian Structural Time Series Model
 
 ```{r bsts, echo=FALSE}
@@ -687,6 +692,163 @@ accuracy(f = pred, x =  bayesianDF.test[, "count"])
 ```
 
 
+## Generalized Additive Model
 
+```{r GAM, echo=FALSE, results="hide"}
+## attaching the entire dataset 
+
+
+# attach(entireData)
+
+## ordering the entire dataset according to the year and month.
+
+orderedEntireData <-entireData[order(entireData$date_sick_year, entireData$date_sick_month), ]
+
+### For the ease of experimentation, lets take data of only one district
+## District with code 1001 selected for experimentation
+
+data_1001 <- subset(orderedEntireData, geocode_district == 1001)
+
+# Create the time variable 
+data_1001$time <- 1:nrow(data_1001)
+
+## Creating Lag variables 
+## 5 year lag for dengue data 
+N <- nrow(data_1001) # taking the length of the dataframe
+
+
+# putting the DHF count data into a vector so that we can tak lags
+countVec <- as.vector(data_1001$count)
+# Lag 0 dengue count variable
+data_1001$count0 <- countVec
+
+# to append lag variable names, I put the existing names into a column vector
+temp <-colnames(data_1001)
+
+#totally we need to take the lag of 5 years i.e. 60 months
+
+countLag <- 1
+for (i in 1:60){
+  print (i);
+  l <- N-i;
+  countLag[i] <- paste0("count",i)
+  laggedCountVec <- c(rep(NA,i), countVec[1:l]) 
+  data_1001 <- cbind(data_1001, laggedCountVec)
+}
+
+# creating dengue lag variables for 60 momnths 
+colnames(data_1001) <- c(temp, countLag)
+
+## Now creating lag variables for temperature 
+
+
+temperatureVec <- as.vector(data_1001$DTR)
+data_1001$templ0 <- temperatureVec
+temp <- colnames(data_1001)  
+  
+tempLag <- 1
+for (i in 1:4){
+  print (i);
+  l <- N-i;
+  tempLag[i] <- paste0("templ",i)
+  laggedDTR <- c(rep(NA,i), temperatureVec[1:l]) 
+  data_1001 <- cbind(data_1001, laggedDTR)
+}
+
+# creating temperature lag variables for 60 momnths 
+colnames(data_1001) <- c(temp, tempLag)
+
+
+## Now creating lag variables for Rainfall
+
+# putting the Rainfall into a vector so that we can take lags
+RainFallVec <- as.vector(data_1001$Rainfall)
+# Lag 0 dengue count variable
+data_1001$rainl0 <- RainFallVec
+
+# to append lag variable names, I put the existing names into a column vector
+temp <-colnames(data_1001)
+
+#totally we need to take the lag of 5 years i.e. 60 months
+
+RainLag <- 1
+for (i in 1:4){
+  print (i);
+  l <- N-i;
+  RainLag[i] <- paste0("rainl",i)
+  laggedRainVec <- c(rep(NA,i), RainFallVec[1:l]) 
+  data_1001 <- cbind(data_1001, laggedRainVec)
+}
+
+# creating rainfall lag variables for 60 momnths 
+colnames(data_1001) <- c(temp, RainLag)
+
+
+View(data_1001)
+
+## Subset data for training 
+
+training <- subset(data_1001, date_sick_year < 2013)
+
+attach(training)
+
+# association models
+# meteorology only model - all variables all lags
+mod.fmet <- gam(training$count ~ 
+                  s(templ0, k=4) + s(templ1, k=4) + s(templ2,k=4) + s(templ3,k=4) 
+                + s(rainl0,k=4) + s(rainl1,k=4) + s(rainl2,k=4) + s(rainl3,k=4)
+                , family=quasipoisson, na.action=na.exclude)
+summary(mod.fmet)
+par(mfrow=c(1,4))
+plot.gam(mod.fmet, ylim=c(-1.2,1.2), ylab="log(RR)")
+
+# meteorology optimal model
+mod.omet <- gam(training$count ~ 
+                s(templ3,k=4) + s(rainl2,k=4) + s(rainl3,k=4), 
+                family=quasipoisson, na.action=na.exclude)
+summary(mod.omet)
+
+par(mfrow=c(1,1))
+p <- fitted.values(mod.omet)
+
+plot(training$time, training$count, type="l",ylab="Number Cases",axes=F,xlab="Year")
+
+points(predict(mod.omet, type="response"),type="l", col="red")
+
+axis(1, at=c(6,18,30,42,54),labels=c(2008:2012))
+axis(2, at=c(0,50,100,150,200,250))
+title(main="Metereology Optimal")
+
+sqrt(mean((training$count-p)^2,na.rm=T))
+sqrt(mean((training$count-p)^2,na.rm=T))/sqrt(mean((training$count)^2))
+
+# AR lag 2 model
+mod.l2 <- gam(training$count ~ s(count2,k=4), 
+              family=quasipoisson, na.action=na.exclude)
+summary(mod.l2)
+
+par(mfrow=c(1,1))
+p <- fitted.values(mod.l2)
+plot(training$time, training$count, type="l")
+
+plot(training$time, training$count, type="l",ylab="Number Cases",axes=T,xlab="Year")
+
+points(predict(mod.l2, type="response"),type="l", col="red")
+
+# axis(1, at=c(6,18,30,42,54,66,78,90,102,114),labels=c(2001:2010))
+# axis(2, at=c(0,50,100,150,200,250))
+title(main="Surveillance: Short-term Lag")
+
+
+
+sqrt(mean((training$count-p)^2,na.rm=T))
+sqrt(mean((training$count-p)^2,na.rm=T))/sqrt(mean((training$count)^2))
+
+
+
+
+
+
+```
 
 
