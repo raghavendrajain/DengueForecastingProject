@@ -46,6 +46,9 @@ require(bsts)
 require(dplyr)
 require(CausalImpact)
 require(xtable)
+library(dplyr)
+library(tidyr)
+
 ```
 
 
@@ -353,6 +356,7 @@ names(district_population)
 
 
 total <- merge(total, district_population, by= "geocode_district") 
+total <- merge(total, district_garbage_data, by= "geocode_district") 
 any(is.na(total))
 
 # Sum of the neighbors of each district
@@ -704,13 +708,27 @@ accuracy(f = pred, x =  bayesianDF.test[, "count"])
 
 orderedEntireData <-entireData[order(entireData$date_sick_year, entireData$date_sick_month), ]
 
+orderedEntireData <- orderedEntireData %>%  group_by(geocode_district,date_sick_year, district_name.x,
+                            population_1..From.DDC.Source., 
+                            Community, area_km2, population_2..From.Bangkok.stat., Age...35, Age..35, X0.4, 
+                            X5.9, X10.14, X15.19, X20.24,
+                            X25.29, X30.34, X35.39, X40.44, X45.49, X50.54, X55.59, X60.64, X65.69, X70.74, X75.79, X80.84, X85.89, X90.94, X95.99, X..100, neighbors, 
+                            Total.Gagbage.2012, Gabage.Per.day.2012,
+                            Total.Gagbage.2013, Gabage.Per.day.2013, 
+                            Total.Gagbage.2014, Gabage.Per.day.2014 ) %>% complete(date_sick_month = 1:12)
+
+
+orderedEntireData$district_name.y <- NULL
+orderedEntireData$AMP_ID <- NULL
+orderedEntireData$time <- rep(1:96, 50)
+
+orderedEntireData <- as.data.frame(orderedEntireData)
+
 ### For the ease of experimentation, lets take data of only one district
 ## District with code 1001 selected for experimentation
 
 data_1001 <- subset(orderedEntireData, geocode_district == 1001)
 
-# Create the time variable 
-data_1001$time <- 1:nrow(data_1001)
 
 ## Creating Lag variables 
 ## 5 year lag for dengue data 
@@ -728,6 +746,7 @@ temp <-colnames(data_1001)
 #totally we need to take the lag of 5 years i.e. 60 months
 
 countLag <- 1
+
 for (i in 1:60){
   print (i);
   l <- N-i;
@@ -790,22 +809,24 @@ View(data_1001)
 
 training <- subset(data_1001, date_sick_year < 2013)
 
-attach(training)
+
 
 # association models
 # meteorology only model - all variables all lags
-mod.fmet <- gam(training$count ~ 
+mod.fmet <- gam(count ~ 
                   s(templ0, k=4) + s(templ1, k=4) + s(templ2,k=4) + s(templ3,k=4) 
                 + s(rainl0,k=4) + s(rainl1,k=4) + s(rainl2,k=4) + s(rainl3,k=4)
-                , family=quasipoisson, na.action=na.exclude)
+                , family=quasipoisson, na.action=na.exclude, data = training)
+
+
 summary(mod.fmet)
 par(mfrow=c(1,4))
 plot.gam(mod.fmet, ylim=c(-1.2,1.2), ylab="log(RR)")
 
 # meteorology optimal model
 mod.omet <- gam(training$count ~ 
-                s(templ3,k=4) + s(rainl2,k=4) + s(rainl3,k=4), 
-                family=quasipoisson, na.action=na.exclude)
+                s(templ3,k=4) + s(rainl0,k=4) +  s(rainl1,k=4) +  s(rainl3,k=4), 
+                family=quasipoisson, na.action=na.exclude, data = training)
 summary(mod.omet)
 
 par(mfrow=c(1,1))
@@ -816,33 +837,49 @@ plot(training$time, training$count, type="l",ylab="Number Cases",axes=F,xlab="Ye
 points(predict(mod.omet, type="response"),type="l", col="red")
 
 axis(1, at=c(6,18,30,42,54),labels=c(2008:2012))
-axis(2, at=c(0,50,100,150,200,250))
+axis(2, at=c(0,10,20,30,40,50))
 title(main="Metereology Optimal")
 
 sqrt(mean((training$count-p)^2,na.rm=T))
-sqrt(mean((training$count-p)^2,na.rm=T))/sqrt(mean((training$count)^2))
+sqrt(mean((training$count-p)^2,na.rm=T))/sqrt(mean((training$count)^2,na.rm=T))
 
-# AR lag 2 model
-mod.l2 <- gam(training$count ~ s(count2,k=4), 
-              family=quasipoisson, na.action=na.exclude)
+# AR lag  model
+mod.l2 <- gam(count ~ s(count1,k=4) + s(count2,k=4) + s(count3,k=4), 
+              family=quasipoisson, na.action=na.exclude, data = training)
+summary(mod.l2)
+
+par(mfrow=c(1,3))
+plot.gam(mod.l2, ylim=c(-1.2,1.2), ylab="log(RR)")
+
+## the data shows that only lag 1 is enough 
+
+mod.l2 <- gam(count ~ s(count1,k=4), 
+              family=quasipoisson, na.action=na.exclude, data = training)
 summary(mod.l2)
 
 par(mfrow=c(1,1))
+plot.gam(mod.l2, ylim=c(-1.2,1.2), ylab="log(RR)")
+
+
 p <- fitted.values(mod.l2)
+
 plot(training$time, training$count, type="l")
 
-plot(training$time, training$count, type="l",ylab="Number Cases",axes=T,xlab="Year")
+plot(training$time, training$count, type="l",ylab="Number Cases",axes=F,xlab="Year")
 
 points(predict(mod.l2, type="response"),type="l", col="red")
 
-# axis(1, at=c(6,18,30,42,54,66,78,90,102,114),labels=c(2001:2010))
-# axis(2, at=c(0,50,100,150,200,250))
 title(main="Surveillance: Short-term Lag")
 
 
+axis(1, at=c(6,18,30,42,54),labels=c(2008:2012))
+axis(2, at=c(0,10,20,30,40,50))
+title(main="Surveillance: Short-term Lag")
 
 sqrt(mean((training$count-p)^2,na.rm=T))
-sqrt(mean((training$count-p)^2,na.rm=T))/sqrt(mean((training$count)^2))
+sqrt(mean((training$count-p)^2,na.rm=T))/sqrt(mean((training$count)^2,na.rm=T))
+
+
 
 
 ```
@@ -857,11 +894,14 @@ sqrt(mean((training$count-p)^2,na.rm=T))/sqrt(mean((training$count)^2))
 # 
 # dlag <- data.frame()
 # 
-# cb1.temp <- crossbasis(training$count1, lag=31, argvar=list(df=4), arglag=list(fun="poly",degree=4))
+# cb1.temp <- crossbasis(training$count1, lag=47, argvar=list(df=4), arglag=list(fun="poly",degree=4))
 # 
 # summary(cb1.temp)
 # 
-# mod.dlnm <- glm(count ~  cb1.temp, family=quasipoisson(), training)
+# lolwa <-  training$count[ !is.na( training$count ) ]
+# 
+# mod.dlnm <- glm(lolwa ~  cb1.temp, family=quasipoisson(), training)
+# 
 # 
 # pred1.temp <- crosspred(cb1.temp, mod.dlnm)
 # 
@@ -875,7 +915,7 @@ sqrt(mean((training$count-p)^2,na.rm=T))/sqrt(mean((training$count)^2))
 
 ```{r optimal_Model, echo=FALSE, results="hide"}
 
-mod.fcum <- gam(count ~ s(count2,k=4) + s(count4,k=4), 
+mod.fcum <- gam(count ~ s(count1,k=4) + s(count2,k=4), 
                   family=quasipoisson, na.action=na.exclude, training)
 summary(mod.fcum)
 
@@ -889,13 +929,10 @@ axis(2, at=c(0,50,100,150,200,250))
 title(main="Surveillance: Optimal Lag Lag")
 
 sqrt(mean((training$count-p)^2,na.rm=T))
-sqrt(mean((training$count-p)^2,na.rm=T))/sqrt(mean((training$count)^2))
+sqrt(mean((training$count-p)^2,na.rm=T))/sqrt(mean((training$count)^2,na.rm=T))
 
 # final model
-mod.fin <- gam(count ~ 
-                 s(templ3,k=4) + s(rainl2,k=4) + s(rainl3,k=4) 
-                + s(count2,k=4) + s(count4,k=4), 
-                family=quasipoisson, na.action=na.exclude, data = training)
+mod.fin <- gam(count ~  s(templ1,k=4) + s(templ2,k=4) + s(templ3,k=4)+ s(rainl0,k=4) + s(rainl1,k=4) + s(rainl3,k=4) + s(count1,k=4) , family=quasipoisson, na.action=na.exclude, data = training)
 
 summary(mod.fin)
 
@@ -911,50 +948,59 @@ axis(2, at=c(0,50,100,150,200,250))
 title(main="Optimal Representation B-D")
 
 sqrt(mean((training$count-p)^2,na.rm=T))
-sqrt(mean((training$count-p)^2,na.rm=T))/sqrt(mean((training$count)^2))
+sqrt(mean((training$count-p)^2,na.rm=T))/sqrt(mean((training$count)^2,na.rm=T))
 
 
 ## Taking population as offset
 
 training$ppl <- training$population_2..From.Bangkok.stat
 
-mod.offset <- gam(count ~ s(templ3,k=4) + s(rainl2,k=4) + s(rainl3,k=4) + s(count2,k=4) + s(count3,k=4) + offset(log(Community)) + offset(log(ppl))  , family=quasipoisson, na.action=na.exclude, data = training)
+mod.offset <- gam(count ~  s(templ1,k=4) + s(templ2,k=4) + s(templ3,k=4)+ s(rainl0,k=4) + s(rainl1,k=4) + s(rainl3,k=4) + s(count1,k=4) + offset(log(neighbors)) , family=quasipoisson, na.action=na.exclude, data = training)
 
 summary(mod.offset)
 
 p <- fitted.values(mod.offset)
 
 sqrt(mean((training$count-p)^2,na.rm=T))
-sqrt(mean((training$count-p)^2,na.rm=T))/sqrt(mean((training$count)^2))
+sqrt(mean((training$count-p)^2,na.rm=T))/sqrt(mean((training$count)^2,na.rm=T))
 
-
-```
-
-
-```{r fillingMissingValues, echo=FALSE, results="hide", include=FALSE}
-library(dplyr)
-library(tidyr)
-
-
-
-a<- data_1001 %>%  group_by(geocode_district,date_sick_year, district_name,
-                            population_1..From.DDC.Source., 
-                            Community, area_km2, population_2..From.Bangkok.stat., Age...35, Age..35, X0.4, 
-                            X5.9, X10.14, X15.19, X20.24,
-                            X25.29, X30.34, X35.39, 
-                            X40.44, X45.49, X50.54, X55.59, X60.64, X65.69, X70.74, X75.79, X80.84, X85.89, X90.94, X95.99, X..100, neighbors, time ) %>% complete(date_sick_month = 1:12)
-
-a<- data_1001 %>%  group_by(geocode_district,date_sick_year, district_name,
-                            population_1..From.DDC.Source., 
-                            Community, area_km2, population_2..From.Bangkok.stat., Age...35, Age..35, X0.4, 
-                            X5.9, X10.14, X15.19, X20.24,
-                            X25.29, X30.34, X35.39, X40.44, X45.49, X50.54, X55.59, X60.64, X65.69, X70.74, X75.79, X80.84, X85.89, X90.94, X95.99, X..100, neighbors) %>% complete(date_sick_month = 1:12)
-
-a$time <- 1:nrow(a)
 
 
 
 ```
+
+
+
+```{r testing, echo=FALSE, results= "hide"}
+
+preddata <- subset(data_1001, select  =  c(templ1, templ2, templ3, rainl0, rainl1,rainl3,count1) )
+data_1001$predict <-  predict(mod.fin, type="response", newdata=preddata)
+
+data_1001$p <- data_1001$predict
+
+train <- subset(data_1001,date_sick_year <2013)
+pred <- subset(data_1001, date_sick_year >2012)
+
+par(mfrow=c(1,1))
+plot(data_1001$time, data_1001$count, type="l")
+points(train$p,type="l", col="red")
+points(pred$time, pred$p,type="l", col="blue")
+abline(h=10, col = "gray10")
+
+#for training data
+
+sqrt(mean((train$count-train$p)^2,na.rm=T))/sqrt(mean((training$count)^2,na.rm=T))
+
+#for validation data 2011-2013
+
+sqrt(mean((pred$count-pred$p)^2,na.rm=T))/sqrt(mean((pred$count)^2, na.rm=T))
+
+```
+
+
+
+
+
 
 ## Notes to myself:
 
@@ -963,6 +1009,10 @@ a$time <- 1:nrow(a)
 - Row bind all the training datasets i.e. the data from 50 BKK districts
 - Row bind all the data from the testing datasets similar to above.
 - make tests.
+
+
+
+
 
 
 
