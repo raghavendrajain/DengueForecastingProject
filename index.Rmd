@@ -1,7 +1,7 @@
 ---
 title: "Dengue Forecasting Project"
 author: "Raghvendra Jain"
-date: "September 21, 2016"
+date: "October 3, 2016"
 output: 
   html_document: 
     fig_caption: yes
@@ -845,10 +845,79 @@ sqrt(mean((training$count-p)^2,na.rm=T))
 sqrt(mean((training$count-p)^2,na.rm=T))/sqrt(mean((training$count)^2))
 
 
+```
 
+
+```{r ar, echo=FALSE, results= "hide"}
+
+### This chunk produced no substantial results
+
+# library(dlnm)
+# 
+# 
+# dlag <- data.frame()
+# 
+# cb1.temp <- crossbasis(training$count1, lag=31, argvar=list(df=4), arglag=list(fun="poly",degree=4))
+# 
+# summary(cb1.temp)
+# 
+# mod.dlnm <- glm(count ~  cb1.temp, family=quasipoisson(), training)
+# 
+# pred1.temp <- crosspred(cb1.temp, mod.dlnm)
+# 
+# par(mfrow=c(1,1))
+# plot(pred1.temp, "contour")
+# plot(pred1.temp)
 
 
 
 ```
+
+```{r optimal_Model, echo=FALSE, results="hide"}
+
+mod.fcum <- gam(count ~ s(count2,k=4) + s(count4,k=4), 
+                  family=quasipoisson, na.action=na.exclude, training)
+summary(mod.fcum)
+
+par(mfrow=c(1,1))
+p <- fitted.values(mod.fcum)
+plot(training$time, training$count, type="l")
+plot(training$time, training$count, type="l",ylab="Number Cases",axes=F,xlab="Year")
+points(predict(mod.fcum, type="response"),type="l", col="red")
+axis(1, at=c(6,18,30,42,54),labels=c(2008:2012))
+axis(2, at=c(0,50,100,150,200,250))
+title(main="Surveillance: Optimal Lag Lag")
+
+sqrt(mean((training$count-p)^2,na.rm=T))
+sqrt(mean((training$count-p)^2,na.rm=T))/sqrt(mean((training$count)^2))
+
+# final model
+mod.fin <- gam(count ~ 
+                 s(templ3,k=4) + s(rainl2,k=4) + s(rainl3,k=4) 
+                + s(count2,k=4) + s(count4,k=4), 
+                family=quasipoisson, na.action=na.exclude, data = training)
+
+summary(mod.fin)
+
+
+
+par(mfrow=c(1,1))
+p <- fitted.values(mod.fin)
+plot(training$time, training$count, type="l")
+plot(training$time, training$count, type="l",ylab="Number Cases",axes=F,xlab="Year")
+points(predict(mod.fin, type="response"),type="l", col="red")
+axis(1, at=c(6,18,30,42,54),labels=c(2008:2012))
+axis(2, at=c(0,50,100,150,200,250))
+title(main="Optimal Representation B-D")
+
+sqrt(mean((training$count-p)^2,na.rm=T))
+sqrt(mean((training$count-p)^2,na.rm=T))/sqrt(mean((training$count)^2))
+
+
+
+```
+
+
+
 
 
