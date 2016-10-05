@@ -1,7 +1,7 @@
 ---
 title: "Dengue Forecasting Project"
 author: "Raghvendra Jain"
-date: "October 3, 2016"
+date: "October 5, 2016"
 output: 
   html_document: 
     fig_caption: yes
@@ -975,6 +975,9 @@ sqrt(mean((training$count-p)^2,na.rm=T))/sqrt(mean((training$count)^2,na.rm=T))
 
 mod.train <- gam(count ~  s(templ1,k=4) + s(templ2,k=4) + s(templ3,k=4)+ s(rainl0,k=4) + s(rainl1,k=4) + s(rainl3,k=4) + s(count1,k=4), family=quasipoisson, na.action=na.exclude, data = training)
 
+
+
+
 summary(mod.train)
 
 preddata <- subset(data_1001, select  =  c(templ1, templ2, templ3, rainl0, rainl1,rainl3,count1) )
@@ -1000,6 +1003,19 @@ sqrt(mean((train$count-train$p)^2,na.rm=T))/sqrt(mean((training$count)^2,na.rm=T
 sqrt(mean((pred$count-pred$p)^2,na.rm=T))/sqrt(mean((pred$count)^2, na.rm=T))
 
 ```
+
+## Prediction using the entire data with GAM
+
+```{r entireDataPrediction, echo= FALSE, results= "hide" }
+
+
+
+```
+
+
+
+
+
 
 
 ## Notes to myself:
