@@ -9,9 +9,12 @@ output:
     toc: yes
 ---
 
+
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, comment = NA)
 ```
+
+
 
 
 #Abstract
@@ -698,7 +701,9 @@ accuracy(f = pred, x =  bayesianDF.test[, "count"])
 
 ## Generalized Additive Model
 
-```{r GAM, echo=FALSE, results="hide"}
+Now, I analyse the dataset according using the Generalized Additive Model.
+
+```{r GAMOrderedDataset, echo=FALSE, results="hide"}
 ## attaching the entire dataset 
 
 
@@ -707,6 +712,61 @@ accuracy(f = pred, x =  bayesianDF.test[, "count"])
 ## ordering the entire dataset according to the year and month.
 
 orderedEntireData <-entireData[order(entireData$date_sick_year, entireData$date_sick_month), ]
+
+
+```
+
+The dataset consists of following entries:
+
+1. Information of each district 
+    + identification codes
+    + name of the district.
+    + population (divided into various age bins)
+    + area in square kms.
+    + Number of communities 
+    + number of neighboring districts
+2. Monthly DHF count in each district from 2008~2015
+3. Monthly average rainfall in Bangkok from 2008~2015
+4. Monthly Diurnal Temperature Range (DTR) in Bangkok from 2008~2015
+
+The map of Bangkok is shown below. 
+
+```{r BKKImage, echo=FALSE}
+library(png)
+library(grid)
+img <- readPNG("images/bangkok_district.png")
+grid.raster(img)
+ 
+```
+
+
+```{r closeToStream, echo=FALSE, results="hide"}
+
+dist_on_stream <- NULL
+dist_cl_stream <- c(29,2,25,1,20,16,15,18,8,13,4,28,31,12,24,33,9,47)
+for (i in dist_cl_stream){
+  code = 1000 + i
+  name <- subset(orderedEntireData, geocode_district ==  code)$district_name.x[1] 
+  #print (as.character(name), quote = FALSE)
+  dist_on_stream  <- c(dist_on_stream, as.character(name))
+  #cat(as.character(name), ",")
+  
+}
+
+```
+
+There are `r length(dist_on_stream)` districts that are close to stream as shown in the above map. Their names are: 
+
+```{r echo=FALSE, comment=NA}
+print (dist_on_stream)
+
+```
+
+
+
+
+```{r TidyingDataset, echo=FALSE, results="hide"}
+
 
 orderedEntireData <- orderedEntireData %>%  group_by(geocode_district,date_sick_year, district_name.x,
                             population_1..From.DDC.Source., 
@@ -724,8 +784,15 @@ orderedEntireData$time <- rep(1:96, 50)
 
 orderedEntireData <- as.data.frame(orderedEntireData)
 
+```
+
+For the For the ease of experimentation
+
+```{r Data_1001, echo=FALSE, results="hide", message=FALSE}
+
 ### For the ease of experimentation, lets take data of only one district
 ## District with code 1001 selected for experimentation
+
 
 data_1001 <- subset(orderedEntireData, geocode_district == 1001)
 
@@ -1025,6 +1092,11 @@ sqrt(mean((pred$count-pred$p)^2,na.rm=T))/sqrt(mean((pred$count)^2, na.rm=T))
 - Row bind all the training datasets i.e. the data from 50 BKK districts
 - Row bind all the data from the testing datasets similar to above.
 - make tests.
+
+
+
+
+
 
 
 
