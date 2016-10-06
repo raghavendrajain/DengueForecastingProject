@@ -534,7 +534,7 @@ ggplot(data=d1, aes(x=Date)) +
   theme_bw() + theme(legend.title = element_blank()) + 
   ylab("") + xlab("") +
   geom_vline(xintercept=as.numeric(as.Date("2014-12-01")), linetype=2) +
-  ggtitle(paste0("ARIMA -- Holdout MAPE = ", round(100*MAPE,2), "%")) + 
+  ggtitle(paste0(" Seasonal ARIMA (0,1,1)(0,1,1)[12] -- Holdout MAPE = ", round(100*MAPE,2), "%")) + 
   theme(axis.text.x=element_text(angle = -90, hjust = 0))
 
 ```
@@ -563,7 +563,7 @@ ggplot(data=d1, aes(x=Date)) +
   theme_bw() + theme(legend.title = element_blank()) + 
   ylab("") + xlab("") +
   geom_vline(xintercept=as.numeric(as.Date("2014-12-01")), linetype=2) +
-  ggtitle(paste0("Seasonal ARIMA -- Holdout MAPE = ", round(100*MAPE,2), "%")) + 
+  ggtitle(paste0("Seasonal ARIMA (1,0,3)(1,1,1)[12] -- Holdout MAPE = ", round(100*MAPE,2), "%")) + 
   theme(axis.text.x=element_text(angle = -90, hjust = 0))
 
 ```
