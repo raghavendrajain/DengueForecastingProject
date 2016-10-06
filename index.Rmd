@@ -77,6 +77,8 @@ connected_district_code <- read.csv("E:/Dengue Forecasting Project/DataAndCode/D
 head(connected_district_code)
 
 
+
+
 ```
 
 ```{r DistrictCode, echo=FALSE, results='hide'}
@@ -414,7 +416,7 @@ AverageRainInBangkok_2008.2015  [, "Month"] <- month.abb
 
 #The Prediction Starts here 
 
-## Using ARIMA model for The DHF Data
+<!-- ## Using ARIMA model for The DHF Data -->
 
 ```{r timeSeries_DHF, echo=FALSE}
 
@@ -453,32 +455,27 @@ seasonplot(tsa_DF)
 
 ```
 
-```{r autoArima, echo=FALSE, results="hide"}
 
 
-Y <- window(tsa_DF, start=c(2008, 1), end=c(2014,12))
-arima <- auto.arima(Y)
-### Actual versus predicted
-d1 <- data.frame(c(as.numeric(fitted(arima)), # fitted and predicted
-                   as.numeric(predict(arima, n.ahead = 12)$pred)),
-                   as.numeric(tsa_DF), #actual values
-                   as.Date(time(tsa_DF)))
-names(d1) <- c("Fitted", "Actual", "Date")
 
-### MAPE (mean absolute percentage error)
-MAPE <- filter(d1, year(Date)>2014) %>% summarise(MAPE=mean(abs(Actual-Fitted)/Actual))
 
-### Plot actual versus predicted
-ggplot(data=d1, aes(x=Date)) +
-  geom_line(aes(y=Actual, colour = "Actual"), size=1.2) +
-  geom_line(aes(y=Fitted, colour = "Fitted"), size=1.2, linetype=2) +
-  theme_bw() + theme(legend.title = element_blank()) + 
-  ylab("") + xlab("") +
-  geom_vline(xintercept=as.numeric(as.Date("2014-12-01")), linetype=2) +
-  ggtitle(paste0("ARIMA -- Holdout MAPE = ", round(100*MAPE,2), "%")) + 
-  theme(axis.text.x=element_text(angle = -90, hjust = 0))
+
+#Time Series Analysis in R
+
+First, let's plot the data
+
+```{r plotData, echo=FALSE}
+
+plot.ts(tsa_DF)
 
 ```
+
+We can see from this time series that there seems to be seasonal variation in the number of dengue incidences per month: there is a peak every winter, and a trough every summer. Again, it seems that this time series could probably be described using an additive model, as the seasonal fluctuations are roughly constant in size over time and do not seem to depend on the level of the time series, and the random fluctuations also seem to be roughly constant in size over time. 
+
+Thus, we don't need to tranform the time series by calculating the natural log of the original data. 
+
+
+## Exponential Smoothing
 
 ```{r ets, echo=FALSE, results="hide"}
 
@@ -508,26 +505,11 @@ ggplot(data=d1, aes(x=Date)) +
 ```
 
 
-##Time Series Analysis in R
-
-First, let's plot the data
-
-```{r plotData, echo=FALSE}
-
-plot.ts(tsa_DF)
-
-```
-
-We can see from this time series that there seems to be seasonal variation in the number of dengue incidences per month: there is a peak every winter, and a trough every summer. Again, it seems that this time series could probably be described using an additive model, as the seasonal fluctuations are roughly constant in size over time and do not seem to depend on the level of the time series, and the random fluctuations also seem to be roughly constant in size over time. 
-
-Thus, we don't need to tranform the time series by calculating the natural log of the original data. 
-
-
-
-
+## Seasonal ARIMA Model 
 
 When a model is fit by manual setting of parameters. 
 
+I fit an ARIMA(0,1,1)(0,1,1)[12] model.
 
 ```{r ARIMA_DHF, echo=FALSE}
 
@@ -556,6 +538,37 @@ ggplot(data=d1, aes(x=Date)) +
   theme(axis.text.x=element_text(angle = -90, hjust = 0))
 
 ```
+
+I fit an ARIMA(1,0,3)(1,1,1)[12] model. 
+
+```{r autoArima, echo=FALSE, results="hide"}
+
+
+Y <- window(tsa_DF, start=c(2008, 1), end=c(2014,12))
+arima <- auto.arima(Y)
+### Actual versus predicted
+d1 <- data.frame(c(as.numeric(fitted(arima)), # fitted and predicted
+                   as.numeric(predict(arima, n.ahead = 12)$pred)),
+                   as.numeric(tsa_DF), #actual values
+                   as.Date(time(tsa_DF)))
+names(d1) <- c("Fitted", "Actual", "Date")
+
+### MAPE (mean absolute percentage error)
+MAPE <- filter(d1, year(Date)>2014) %>% summarise(MAPE=mean(abs(Actual-Fitted)/Actual))
+
+### Plot actual versus predicted
+ggplot(data=d1, aes(x=Date)) +
+  geom_line(aes(y=Actual, colour = "Actual"), size=1.2) +
+  geom_line(aes(y=Fitted, colour = "Fitted"), size=1.2, linetype=2) +
+  theme_bw() + theme(legend.title = element_blank()) + 
+  ylab("") + xlab("") +
+  geom_vline(xintercept=as.numeric(as.Date("2014-12-01")), linetype=2) +
+  ggtitle(paste0("Seasonal ARIMA -- Holdout MAPE = ", round(100*MAPE,2), "%")) + 
+  theme(axis.text.x=element_text(angle = -90, hjust = 0))
+
+```
+
+
 
 
 ## A Bayesian Structural Time Series Model
@@ -763,10 +776,9 @@ print (dist_on_stream)
 ```
 
 
-
-
 ```{r TidyingDataset, echo=FALSE, results="hide"}
 
+## This chunk creates implicit missing data into explicit missing data. 
 
 orderedEntireData <- orderedEntireData %>%  group_by(geocode_district,date_sick_year, district_name.x,
                             population_1..From.DDC.Source., 
@@ -780,13 +792,31 @@ orderedEntireData <- orderedEntireData %>%  group_by(geocode_district,date_sick_
 
 orderedEntireData$district_name.y <- NULL
 orderedEntireData$AMP_ID <- NULL
-orderedEntireData$time <- rep(1:96, 50)
+orderedEntireData$time <- rep(1:96, 50) #Time variable is input as additional column
 
 orderedEntireData <- as.data.frame(orderedEntireData)
 
 ```
 
-For the For the ease of experimentation
+## Study Area 1
+
+For the ease of experimentation, I use the data from first district (indexed as 1 in the image of Bangkok) and perform the our analyses. The name of the district is `r as.character(subset(orderedEntireData, geocode_district ==  1001)$district_name.x[1])`. As you can see, it is located near the stream. 
+
+
+```{r surDistData, echo=FALSE, results="hide"}
+
+View(connected_district_code)
+
+temp <- subset(connected_district_code, select = - geocode_district)
+a<- apply(temp, 1, function(i) which(i %in% "1"))
+
+
+
+```
+
+
+
+
 
 ```{r Data_1001, echo=FALSE, results="hide", message=FALSE}
 
