@@ -37,8 +37,8 @@ MathJax.Hub.Config({
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   
   
-<link rel="prev" href="hypothesis.html">
-<link rel="next" href="the-prediction-starts-here.html">
+<link rel="prev" href="introduction.html">
+
 
 <script src="libs/jquery-2.2.3/jquery.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
@@ -146,110 +146,24 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="exploratory-data-analysis" class="section level1">
-<h1><span class="header-section-number">3</span> Exploratory Data Analysis</h1>
-<p>I import the important the following packages into R.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">require</span>(ggplot2) <span class="co"># used in plotting </span>
-<span class="kw">require</span>(reshape)
-<span class="kw">require</span>(plotly)
-<span class="kw">require</span>(bnlearn) <span class="co"># used for Bayesian Networks</span>
-<span class="kw">require</span>(mgcv)    <span class="co"># used for Generalized Additive Modeling </span>
-<span class="kw">require</span>(fpp)
-<span class="kw">require</span>(lubridate)
-<span class="kw">require</span>(bsts)
-<span class="kw">require</span>(dplyr)
-<span class="kw">require</span>(CausalImpact)
-<span class="kw">require</span>(xtable)
-<span class="kw">library</span>(dplyr)
-<span class="kw">library</span>(tidyr)</code></pre></div>
-<div id="the-description-of-variables" class="section level2">
-<h2><span class="header-section-number">3.1</span> The description of variables</h2>
-<p>The description of the data variables.</p>
-<table style="width:39%;">
-<colgroup>
-<col width="19%" />
-<col width="19%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th>Variable Name</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>connected_district_code</td>
-<td>The rows have the codes of 50 districts of Bangkok. The colums tell its connecions to other districts.</td>
-</tr>
-<tr class="even">
-<td>district_code</td>
-<td>Has geocodes, postal code of each of the district, their names, population and area.</td>
-</tr>
-<tr class="odd">
-<td>district_garbage_data</td>
-<td>Has yearly and daily average gardbage collection data for 3 consecutive years.</td>
-</tr>
-<tr class="even">
-<td>district_population</td>
-<td>Has population deographics into age groups in each district, their total population, number of communities and the total area.</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div id="the-diurnal-temperature-range-dtr" class="section level2">
-<h2><span class="header-section-number">3.2</span> The diurnal temperature range (DTR)</h2>
-<p>DTR is the difference between the daily maximum and minimum temperature.</p>
-<p>The plot summary and visualization is given below:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">AverageDTRInBangkok_2008<span class="fl">.2015</span></code></pre></div>
-<pre><code>   Month 2015 2014 2013 2012 2011 2010 2009 2008
-1    Jan  9.6 11.2 10.3  9.2  9.9  8.6 10.6  9.0
-2    Feb  9.0  8.6  9.0  8.3  8.8  7.2  9.7  7.8
-3    Mar  8.0  8.1  9.1  8.3  7.4  8.9  8.9  8.0
-4    Apr  8.7  8.7  9.2  8.5  8.1  8.4  9.5  8.1
-5    May  8.3  9.3  8.9  8.8  7.6  8.5  8.1  7.0
-6    Jun  8.6  7.6  7.8  7.6  6.7  8.7  7.1  6.9
-7    Jul  7.8  7.4  7.2  6.9  7.7  8.2  7.3  6.4
-8    Aug  7.9  7.9  8.1  7.9  7.4  8.1  8.4  6.4
-9    Sep  8.1  8.1  7.3  7.3  7.4  8.3  8.5  6.7
-10   Oct  7.2  7.9  7.9  7.6  7.7  7.2  8.6  6.9
-11   Nov  8.0  8.5  8.5  8.0  8.6  7.6  9.3  7.0
-12   Dec  8.4  8.6 10.5  9.7  9.2  8.7  9.3  9.0</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot.ts</span>(summary_DTR)</code></pre></div>
-<p><img src="_main_files/figure-html/DTRSummary-1.png" width="672" /></p>
-<p>Plotting DTR for all the years on the same plot.</p>
-<p><img src="_main_files/figure-html/DTRTogether-1.png" width="672" /></p>
-</div>
-<div id="the-average-monthly-rainfall-in-bangkok." class="section level2">
-<h2><span class="header-section-number">3.3</span> The average monthly rainfall in Bangkok.</h2>
-<p>The plot summary for monthly rainfall and visualization is given below:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">AverageRainInBangkok_2008<span class="fl">.2015</span></code></pre></div>
-<pre><code>   Month  2015    2014    2013    2012    2011  2010  2009  2008
-1    Jan   3.5   0.000  32.206  43.354   0.630  99.9   0.0  62.1
-2    Feb  16.8   2.512   4.098  18.654  37.342   2.9   0.0  69.3
-3    Mar 183.9  19.314  35.918  31.888 136.716  14.6  30.2   3.6
-4    Apr 128.9  25.358  64.366  51.914 136.662  17.3 359.6 180.8
-5    May  82.5 125.410 111.540 108.984 246.128 279.3 463.4 257.9
-6    Jun 495.0 125.936 206.946 123.418 196.584 198.8 219.3 163.6
-7    Jul 220.8 122.270 142.212 176.626 288.680 348.7 175.7 221.8
-8    Aug  50.5 218.006 228.214 190.436 292.804 343.1 354.0 172.1
-9    Sep 352.4 203.436 312.220 548.736 266.538 409.5 351.8 335.2
-10   Oct 334.2 206.998 314.090 236.996 337.502 256.3 264.2 399.3
-11   Nov  34.9  51.506  69.286 106.022   1.880  30.6  46.5  36.7
-12   Dec  42.7  25.926   2.060  12.256   0.584  22.7   7.3   0.0</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot.ts</span>(summary_Rain)</code></pre></div>
-<p><img src="_main_files/figure-html/RainSummary-1.png" width="672" /></p>
-<p>Plotting average monthly rainfall for all the years on the same plot.</p>
-<p><img src="_main_files/figure-html/RainTogether-1.png" width="672" /></p>
-</div>
-<div id="the-dengue-incidences-in-bangkok-districts" class="section level2">
-<h2><span class="header-section-number">3.4</span> The dengue incidences in Bangkok Districts</h2>
-<p><img src="_main_files/figure-html/DegueSurveillaneData-1.png" width="672" /></p>
-<p>The plot shows the Dengue hemorrhagic fever(DHF) incidence peaked in 2013 and 2015.</p>
-<p><img src="_main_files/figure-html/DegueSurveillaneData_Monthly-1.png" width="672" /></p>
-<p>The above plot shows that most of the DHF incidents were reported in the month of October and November.</p>
-<p><img src="_main_files/figure-html/DegueSurveillaneData_TimeWise-1.png" width="672" /></p>
-<p><img src="_main_files/figure-html/DegueSurveillaneData_DF-1.png" width="672" /></p>
-<p><img src="_main_files/figure-html/CombingingPredictors-1.png" width="672" /><img src="_main_files/figure-html/CombingingPredictors-2.png" width="672" /></p>
+<div id="another-intro" class="section level1">
+<h1><span class="header-section-number">7</span> Another Intro</h1>
+<p>This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <a href="http://rmarkdown.rstudio.com" class="uri">http://rmarkdown.rstudio.com</a>.</p>
+<p>When you click the <strong>Knit</strong> button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">summary</span>(cars)</code></pre></div>
+<pre><code>     speed           dist       
+ Min.   : 4.0   Min.   :  2.00  
+ 1st Qu.:12.0   1st Qu.: 26.00  
+ Median :15.0   Median : 36.00  
+ Mean   :15.4   Mean   : 42.98  
+ 3rd Qu.:19.0   3rd Qu.: 56.00  
+ Max.   :25.0   Max.   :120.00  </code></pre>
+<div id="including-plots-1" class="section level2">
+<h2><span class="header-section-number">7.1</span> Including Plots</h2>
+<p>You can also embed plots, for example:</p>
+<p><img src="_main_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+<p>Note that the <code>echo = FALSE</code> parameter was added to the code chunk to prevent printing of the R code that generated the plot.</p>
+
 </div>
 </div>
             </section>
@@ -257,8 +171,8 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
           </div>
         </div>
       </div>
-<a href="hypothesis.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-<a href="the-prediction-starts-here.html" class="navigation navigation-next " aria-label="Next page""><i class="fa fa-angle-right"></i></a>
+<a href="introduction.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+
 
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
 <script src="libs/gitbook-2.6.7/js/lunr.js"></script>
