@@ -2,18 +2,18 @@
 title: "Dengue Forecasting Project"
 author: "Raghvendra Jain"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
-output: 
-  html_document: 
-    fig_caption: yes
-    number_sections: yes
-    toc: yes
+
+site: bookdown::bookdown_site
+output: bookdown::gitbook
+documentclass: book
+   
+    
 ---
 
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, comment = NA)
 ```
-
 
 
 
@@ -808,12 +808,42 @@ For the ease of experimentation, I use the data from first district (indexed as 
 View(connected_district_code)
 
 temp <- subset(connected_district_code, select = - geocode_district)
-a<- apply(temp, 1, function(i) which(i %in% "1"))
+list_neigh<- apply(temp, 1, function(i) which(i %in% "1"))
+
+```
+
+
+```{r echo=FALSE, results="hide"}
+
+# N <- length(list_neigh)
+# surroundingDengue <- list()
+# dist_n <- list()
+# list_distData <- list()
+# 
+# for (i in 1:N){
+#   distCode <- 1000 + i
+#   p <- subset(orderedEntireData, geocode_district ==    distCode)
+#   dist_n <- list_neigh[i][[1]]
+#   print (dist_n)
+#   #neighborsDf <- data.frame()
+#   for (j in dist_n){
+#     l <- length(dist_n)
+#     neighCode <- 1000 + j
+#     print (neighCode)
+#     name <- paste0("neigh", j )
+#     p[name]<- subset(orderedEntireData, geocode_district == neighCode)$count
+#     
+#     neighborsDf <- cbind(neighborsDf, p[name])
+#     
+#   }
+#   print (p)
+#   list_distData[[i]] <- p
+# 
+# }
 
 
 
 ```
-
 
 
 
