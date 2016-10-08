@@ -4,7 +4,7 @@ author: "Raghvendra Jain"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 
 site: bookdown::bookdown_site
-output: bookdown::gitbook
+output: bookdown::html_document2
 
    
     
