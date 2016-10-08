@@ -3,11 +3,9 @@ title: "Dengue Forecasting Project"
 author: "Raghvendra Jain"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 
-output:
-  html_document:
-    fig_caption: yes
-    number_sections: yes
-    toc: yes
+site: bookdown::bookdown_site
+output: bookdown::gitbook
+documentclass: book
 
    
     

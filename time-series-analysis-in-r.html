@@ -37,8 +37,8 @@ MathJax.Hub.Config({
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   
   
-
-<link rel="next" href="hypothesis.html">
+<link rel="prev" href="the-prediction-starts-here.html">
+<link rel="next" href="introduction.html">
 
 <script src="libs/jquery-2.2.3/jquery.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
@@ -146,22 +146,95 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="header">
-<h1 class="title">Dengue Forecasting Project</h1>
-<h4 class="author"><em>Raghvendra Jain</em></h4>
-<h4 class="date"><em>08 October, 2016</em></h4>
+<div id="time-series-analysis-in-r" class="section level1">
+<h1><span class="header-section-number">5</span> Time Series Analysis in R</h1>
+<p>First, let’s plot the data</p>
+<p><img src="_main_files/figure-html/plotData-1.png" width="672" /></p>
+<p>We can see from this time series that there seems to be seasonal variation in the number of dengue incidences per month: there is a peak every winter, and a trough every summer. Again, it seems that this time series could probably be described using an additive model, as the seasonal fluctuations are roughly constant in size over time and do not seem to depend on the level of the time series, and the random fluctuations also seem to be roughly constant in size over time.</p>
+<p>Thus, we don’t need to tranform the time series by calculating the natural log of the original data.</p>
+<div id="exponential-smoothing" class="section level2">
+<h2><span class="header-section-number">5.1</span> Exponential Smoothing</h2>
+<p><img src="_main_files/figure-html/ets-1.png" width="672" /></p>
 </div>
-<div id="abstract" class="section level1">
-<h1><span class="header-section-number">1</span> Abstract</h1>
-<p>To create early warning system of dengue outbreaks, we present a machine learning-based methodology capable of providing real-time (“nowcast”) and forecast estimates of dengue prediction in each of the fifty districts of Thailand by leveraging data from multiple data sources. Using a set of prediction variables we show an increasing prediction accuracy of the model with an optimal combination of predictors which include: meteorological data, clinical data, lag variables of disease surveillance, socio-economic data and the data encoding spatial dependence on dengue transmission. We use generalized Generalized Additive Models (GAMs) to fit the relationships between the predictors and the clinical data of Dengue hemorrhagic fever (DHF) on the basis of the data from 2008 to 2012. Using the data from 2013 to 2015 and a comparative set of prediction models we evaluate the predictive ability of the fitted models according to RMSE and SRMSE, BIC as well as AIC. We also show that for the prediction of dengue outbreaks within a district, the influence of dengue incidences and socio-economic data from the surrounding districts is <strong>statistically significant</strong>, possibly indicating the influence of movement patterns of people and spatial heterogeneity of human activities on the spread of the epidemic.</p>
+<div id="seasonal-arima-model" class="section level2">
+<h2><span class="header-section-number">5.2</span> Seasonal ARIMA Model</h2>
+<p>When a model is fit by manual setting of parameters.</p>
+<p>I fit an ARIMA(0,1,1)(0,1,1)[12] model.</p>
+<p><img src="_main_files/figure-html/ARIMA_DHF-1.png" width="672" /></p>
+<p>I fit an ARIMA(1,0,3)(1,1,1)[12] model.</p>
+<p><img src="_main_files/figure-html/autoArima-1.png" width="672" /></p>
+</div>
+<div id="a-bayesian-structural-time-series-model" class="section level2">
+<h2><span class="header-section-number">5.3</span> A Bayesian Structural Time Series Model</h2>
+<p><img src="_main_files/figure-html/bsts-1.png" width="672" /><img src="_main_files/figure-html/bsts-2.png" width="672" /></p>
+</div>
+<div id="a-structured-bayesian-network-approach" class="section level2">
+<h2><span class="header-section-number">5.4</span> A Structured Bayesian Network Approach</h2>
+<p><img src="_main_files/figure-html/HybridBayesianNet-1.png" width="672" /></p>
+<pre><code>                ME    RMSE      MAE       MPE     MAPE
+Test set -1.063421 10.0441 6.664085 -60.43833 79.39199</code></pre>
+<p><img src="_main_files/figure-html/newBN-1.png" width="672" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">accuracy</span>(<span class="dt">f =</span> pred, <span class="dt">x =</span>  bayesianDF.test[, <span class="st">&quot;count&quot;</span>])</code></pre></div>
+<pre><code>               ME     RMSE      MAE      MPE     MAPE
+Test set 8.765601 27.51189 16.08321 -87.3934 135.7163</code></pre>
+</div>
+<div id="generalized-additive-model" class="section level2">
+<h2><span class="header-section-number">5.5</span> Generalized Additive Model</h2>
+<p>Now, I analyse the dataset according using the Generalized Additive Model.</p>
+<p>The dataset consists of following entries:</p>
+<ol style="list-style-type: decimal">
+<li>Information of each district
+<ul>
+<li>identification codes</li>
+<li>name of the district.</li>
+<li>population (divided into various age bins)</li>
+<li>area in square kms.</li>
+<li>Number of communities</li>
+<li>number of neighboring districts</li>
+</ul></li>
+<li>Monthly DHF count in each district from 2008~2015</li>
+<li>Monthly average rainfall in Bangkok from 2008~2015</li>
+<li>Monthly Diurnal Temperature Range (DTR) in Bangkok from 2008~2015</li>
+</ol>
+<p>The map of Bangkok is shown below.</p>
+<p><img src="_main_files/figure-html/BKKImage-1.png" width="672" /></p>
+<p>There are 18 districts that are close to stream as shown in the above map. Their names are:</p>
+<pre><code> [1] &quot;Bang Su&quot;         &quot;Dusit&quot;           &quot;Bang Plad&quot;      
+ [4] &quot;Phra Nakhon&quot;     &quot;Bangkok Noi&quot;     &quot;Bangkok Yai&quot;    
+ [7] &quot;Thon Buri&quot;       &quot;Khlong San&quot;      &quot;Pom Pram Sattru&quot;
+[10] &quot;Samphantawong&quot;   &quot;Bang Rak&quot;        &quot;Sathorn&quot;        
+[13] &quot;Bang Kho Laem&quot;   &quot;Yannawa&quot;         &quot;Rat Burana&quot;     
+[16] &quot;Khlong Toey&quot;     &quot;Prakanong&quot;       &quot;Bang Na&quot;        </code></pre>
+</div>
+<div id="study-area-1" class="section level2">
+<h2><span class="header-section-number">5.6</span> Study Area 1</h2>
+<p>For the ease of experimentation, I use the data from first district (indexed as 1 in the image of Bangkok) and perform the our analyses. The name of the district is Phra Nakhon. As you can see, it is located near the stream.</p>
+<p><img src="_main_files/figure-html/Data_1001-1.png" width="672" /><img src="_main_files/figure-html/Data_1001-2.png" width="672" /><img src="_main_files/figure-html/Data_1001-3.png" width="672" /><img src="_main_files/figure-html/Data_1001-4.png" width="672" /><img src="_main_files/figure-html/Data_1001-5.png" width="672" /><img src="_main_files/figure-html/Data_1001-6.png" width="672" /><img src="_main_files/figure-html/Data_1001-7.png" width="672" /></p>
+<p><img src="_main_files/figure-html/optimal_Model-1.png" width="672" /><img src="_main_files/figure-html/optimal_Model-2.png" width="672" /><img src="_main_files/figure-html/optimal_Model-3.png" width="672" /><img src="_main_files/figure-html/optimal_Model-4.png" width="672" /></p>
+<p><img src="_main_files/figure-html/testing-1.png" width="672" /></p>
+</div>
+<div id="prediction-using-the-entire-data-with-gam" class="section level2">
+<h2><span class="header-section-number">5.7</span> Prediction using the entire data with GAM</h2>
+</div>
+<div id="notes-to-myself" class="section level2">
+<h2><span class="header-section-number">5.8</span> Notes to myself:</h2>
+<ul>
+<li>I need to create the lagged values for each district.</li>
+<li>Separate the data into training and testing datasets. Keep the year variable flexible, so that I can experiment with year variables</li>
+<li>Row bind all the training datasets i.e. the data from 50 BKK districts</li>
+<li>Row bind all the data from the testing datasets similar to above.</li>
+<li>make tests.</li>
+</ul>
+
+</div>
 </div>
             </section>
 
           </div>
         </div>
       </div>
-
-<a href="hypothesis.html" class="navigation navigation-next navigation-unique" aria-label="Next page""><i class="fa fa-angle-right"></i></a>
+<a href="the-prediction-starts-here.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="introduction.html" class="navigation navigation-next " aria-label="Next page""><i class="fa fa-angle-right"></i></a>
 
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
 <script src="libs/gitbook-2.6.7/js/lunr.js"></script>

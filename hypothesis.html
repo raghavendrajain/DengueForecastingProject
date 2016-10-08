@@ -37,8 +37,8 @@ MathJax.Hub.Config({
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   
   
-
-<link rel="next" href="hypothesis.html">
+<link rel="prev" href="index.html">
+<link rel="next" href="exploratory-data-analysis.html">
 
 <script src="libs/jquery-2.2.3/jquery.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
@@ -146,22 +146,19 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="header">
-<h1 class="title">Dengue Forecasting Project</h1>
-<h4 class="author"><em>Raghvendra Jain</em></h4>
-<h4 class="date"><em>08 October, 2016</em></h4>
-</div>
-<div id="abstract" class="section level1">
-<h1><span class="header-section-number">1</span> Abstract</h1>
-<p>To create early warning system of dengue outbreaks, we present a machine learning-based methodology capable of providing real-time (“nowcast”) and forecast estimates of dengue prediction in each of the fifty districts of Thailand by leveraging data from multiple data sources. Using a set of prediction variables we show an increasing prediction accuracy of the model with an optimal combination of predictors which include: meteorological data, clinical data, lag variables of disease surveillance, socio-economic data and the data encoding spatial dependence on dengue transmission. We use generalized Generalized Additive Models (GAMs) to fit the relationships between the predictors and the clinical data of Dengue hemorrhagic fever (DHF) on the basis of the data from 2008 to 2012. Using the data from 2013 to 2015 and a comparative set of prediction models we evaluate the predictive ability of the fitted models according to RMSE and SRMSE, BIC as well as AIC. We also show that for the prediction of dengue outbreaks within a district, the influence of dengue incidences and socio-economic data from the surrounding districts is <strong>statistically significant</strong>, possibly indicating the influence of movement patterns of people and spatial heterogeneity of human activities on the spread of the epidemic.</p>
+<div id="hypothesis" class="section level1">
+<h1><span class="header-section-number">2</span> Hypothesis</h1>
+<p><span class="math inline">\(H_1:\)</span> To forecast dengue incidences in a particular district, the influence of the data from past dengue incidences and socio-economic data from its <strong>surrounding districts</strong> is statistically significant.</p>
+<p><span class="math inline">\(H_2:\)</span> To forecast dengue incidences, a data-driven interpretable, non-parametric time-series forecasting approach (e.g. Generalized Additive Models (GAMs)) is statistically better than parametric modeling approaches (e.g. ARIMA.)</p>
+<p><span class="math inline">\(H_3:\)</span> To forecast dengue incidences, an ensemble forecasting model with Bayesian Network and time-series modeling approach is statistically better than the individual models.</p>
 </div>
             </section>
 
           </div>
         </div>
       </div>
-
-<a href="hypothesis.html" class="navigation navigation-next navigation-unique" aria-label="Next page""><i class="fa fa-angle-right"></i></a>
+<a href="index.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="exploratory-data-analysis.html" class="navigation navigation-next " aria-label="Next page""><i class="fa fa-angle-right"></i></a>
 
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
 <script src="libs/gitbook-2.6.7/js/lunr.js"></script>
